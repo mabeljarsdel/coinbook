@@ -6,7 +6,7 @@ import PackageDescription
 let package = Package(
     name: "CoinBook",
     platforms: [
-        .iOS(.v15),
+        .iOS(.v14),
     ],
     products: [
         .library(name: "CoinBook", targets: ["CoinBook"]),

@@ -10,11 +10,13 @@ final class BitMEX {
     }
     
     private let processq = DispatchQueue.main
+    private let stateThrottle = Throttle<BitMEX.State>()
     private var broadcast = noop as (Report) -> Void
     private var chan = BitMEXChannel?.none
     private var state = BitMEX.State()
     
     init() {
+        stateThrottle.dispatch { [weak self] state in self?.broadcast(.state(state)) }
     }
     func queue(_ cmd:Command) {
         processq.async { [weak self] in self?.processCommand(cmd) }
@@ -51,6 +53,8 @@ final class BitMEX {
             }
         case let .table(.trade(metadata, rows)):
             state.recentTradeList.applyTradeTable(metadata, rows)
+            stateThrottle
+            broadcast(.state(state))
         default:
             verboseDump(report)
         }

@@ -105,3 +105,12 @@ private final class OrderBookItemCell: UICollectionViewCell {
     }
 }
 
+
+private extension State {
+    func renditionForRow(_ row:Int) -> (buy:State.Order?, sell:State.Order?) {
+        let book = orderBook
+        let buy = row < book.buys.count ? book.buys[row] : nil
+        let sell = row < book.sells.count ? book.sells[row] : nil
+        return (buy,sell)
+    }
+}

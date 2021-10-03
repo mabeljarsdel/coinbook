@@ -71,6 +71,7 @@ extension BitMEX {
                 sells.removeAll()
                 table.removeAll()
                 fallthrough
+                
             case .insert:
                 for row in rows {
                     guard let size = row.size else { throw Issue.bitMEX(.missingSizeOrPriceFieldInPartialActionTable(row)) }
