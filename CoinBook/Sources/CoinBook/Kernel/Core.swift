@@ -28,7 +28,7 @@ final class Core {
             let newchan = try BitMEXChannel()
             newchan.dispatch { [weak self] report in self?.processq.async { self?.processBitMEXReport(report) } }
             chan = newchan
-            newchan.queue(.subscribe(topics: [.orderBookL2_25, .trade]))
+            newchan.queue(.subscribe(topics: [.orderBookL2_XBTUSD, .trade_XBT_USD]))
         }
         catch let err {
             log(err)

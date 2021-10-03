@@ -8,8 +8,16 @@ final class BitMEXTests: XCTestCase {
         let ms = samples.split(separator: "\n")
         for m in ms {
             let d = m.data(using: .utf8) ?? Data()
-            let j = try jc.decode(BitMEXChannel.Report.self, from: d)
-            print(j)
+            do {
+                print("DECODING:")
+                print(m)
+                let j = try jc.decode(BitMEXChannel.Report.self, from: d)
+                dump(j)
+            }
+            catch let err {
+                dump(err)
+                throw err
+            }
         }
     }
 }

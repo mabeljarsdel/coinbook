@@ -10,11 +10,9 @@ import Foundation
 ///
 extension BitMEXChannel {
     enum Topic: String, Codable {
-        /// Top 25 levels of level 2 order book.
-        /// Recommended for realtime subuscription by manual.
-        case orderBookL2_25
-        /// Live trades.
-        case trade
+        case orderBookL2_XBTUSD = "orderBookL2:XBTUSD"
+        case orderBookL2_25_XBTUSD = "orderBookL2_25:XBTUSD"
+        case trade_XBT_USD = "trade:XBTUSD"
         /// There are more, but I do not use them.
     }
     

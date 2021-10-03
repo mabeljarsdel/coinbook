@@ -3,6 +3,10 @@ import Foundation
 struct State {
     private(set) var orders = [Order]()
     private(set) var trades = [Trade]()
+    struct OrderBook {
+        var buys = [Order]()
+        var sells = [Order]()
+    }
     struct Order {
         var price: Double
         var quantity: Int64

@@ -55,9 +55,6 @@ final class BitMEXChannel {
                 cast(m)
             }
             catch let err {
-                let f = FileHandle(forWritingAtPath: "/Users/Dev/tmp/bb")!
-                f.write((s + "\n").data(using: .utf8) ?? Data())
-                print(err)
                 cast(.error(err))
             }
         }

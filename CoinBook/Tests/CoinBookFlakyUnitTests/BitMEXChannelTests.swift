@@ -32,8 +32,34 @@ final class BitMEXChannelTests: XCTestCase {
                 break
             }
         }
-        chan.queue(.subscribe(topics: ["orderBookL2_25:XBTUSD", "trade"]))
+        chan.queue(.subscribe(topics: [.orderBookL2_XBTUSD, .trade_XBT_USD]))
         waitForExpectations(timeout: 30, handler: nil)
+    }
+    func testManyMessageDecoding() throws {
+        var msgcount = 0
+        var exp = expectation(description: "Receiving & decoding 1000 messages from websocket.") as XCTestExpectation?
+        let chan = try BitMEXChannel()
+        chan.dispatch { report in
+            switch report {
+            case .info:
+                break
+            case let .subscribe(x):
+                if !x.success {
+                    XCTFail("subscription failure.")
+                }
+            case let .table(x):
+                msgcount += 1
+                dump(x)
+                if msgcount >= 1000 {
+                    exp?.fulfill()
+                    exp = nil
+                }
+            case let .error(err):
+                XCTFail("received an error: \(err)")
+            }
+        }
+        chan.queue(.subscribe(topics: [.orderBookL2_XBTUSD, .trade_XBT_USD]))
+        waitForExpectations(timeout: 120, handler: nil)
     }
 }
 
