@@ -22,10 +22,11 @@ protocol OrderBookShellIO {
 }
 
 private final class OrderBookShellImpl: UICollectionViewController, OrderBookShellIO {
-    private var rendition = Rendition()
+    private var state = State()
     private var broadcast = noop as (Action) -> Void
-    func process(_ x: Rendition) {
-        rendition = x
+    func process(_ x:Rendition) {
+        guard let x = x.state else { return }
+        state = x
         collectionView.reloadData()
     }
     func dispatch(_ fx: @escaping (Action) -> Void) {
@@ -40,14 +41,16 @@ private final class OrderBookShellImpl: UICollectionViewController, OrderBookShe
         1
     }
     override func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        rendition.orderBook.items.count
+        max(state.orderBook.buys.count, state.orderBook.sells.count)
     }
     override func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: OrderBookItemCell.reuseID, for: indexPath)
         if let cell = cell as? OrderBookItemCell {
-            let rend = rendition.orderBook.items[indexPath.row]
-            print("DD: \(rend)")
-            cell.process(rend)
+            let book = state.orderBook
+            let row = indexPath.row
+            let buy = row < book.buys.count ? book.buys[row] : nil
+            let sell = row < book.sells.count ? book.sells[row] : nil
+            cell.process((buy,sell))
         }
         return cell
     }
@@ -61,7 +64,7 @@ private final class OrderBookItemCell: UICollectionViewCell {
     private let sellQuantityLabel = UILabel()
     private let sellPriceLabel = UILabel()
     private var isInstalled = false
-    func process(_ x:State.Order) {
+    func process(_ x:(buy:State.Order?, sell:State.Order?)) {
         if !isInstalled {
             isInstalled = true
             contentView.addSubview(buyQuantityLabel)
@@ -95,8 +98,10 @@ private final class OrderBookItemCell: UICollectionViewCell {
             sellQuantityLabel.textAlignment = .right
         }
         
-        buyQuantityLabel.text = "QQ"
-        buyPriceLabel.text = "PP"
+        buyQuantityLabel.text = x.buy?.quantity.description ?? "????"
+        buyPriceLabel.text = x.buy?.price.description ?? "????"
+        sellQuantityLabel.text = x.sell?.quantity.description ?? "????"
+        sellPriceLabel.text = x.sell?.price.description ?? "????"
     }
 }
 

@@ -1,5 +1,4 @@
 import Foundation
-import Starscream
 
 final class BitMEXChannel {
     private let processq = DispatchQueue(label: "BitMEXChannel")

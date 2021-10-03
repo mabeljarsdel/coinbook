@@ -2,6 +2,15 @@
   "object": {
     "pins": [
       {
+        "package": "BTree",
+        "repositoryURL": "https://github.com/attaswift/BTree",
+        "state": {
+          "branch": null,
+          "revision": "83435371ef3c6d98107f5b562a5870a3dfca6243",
+          "version": "4.1.0"
+        }
+      },
+      {
         "package": "JJLISO8601DateFormatter",
         "repositoryURL": "https://github.com/michaeleisel/JJLISO8601DateFormatter",
         "state": {

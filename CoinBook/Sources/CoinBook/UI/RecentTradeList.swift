@@ -22,10 +22,11 @@ protocol RecentTradeListShellIO {
 }
 
 private final class RecentTradeListShellImpl: UICollectionViewController, RecentTradeListShellIO {
-    private var rendition = Rendition()
+    private var state = State()
     private var broadcast = noop as (Action) -> Void
-    func process(_ x: Rendition) {
-        rendition = x
+    func process(_ x:Rendition) {
+        guard let x = x.state else { return }
+        state = x
         collectionView.reloadData()
     }
     func dispatch(_ fx: @escaping (Action) -> Void) {
@@ -40,13 +41,13 @@ private final class RecentTradeListShellImpl: UICollectionViewController, Recent
         1
     }
     override func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        rendition.orderBook.items.count
+        state.trades.count
     }
     override func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: TradeRecordCell.reuseID, for: indexPath)
         if let cell = cell as? TradeRecordCell {
-            let rend = rendition.recentTrade.items[indexPath.row]
-            cell.process(rend)
+            let trade = state.trades[indexPath.row]
+            cell.process(trade)
         }
         return cell
     }

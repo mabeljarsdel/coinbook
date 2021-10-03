@@ -22,16 +22,17 @@ private final class HomeShellImpl: UITabBarController, HomeShellIO {
         recentTradeList.tabBarItem = UITabBarItem(title: "Recent Trades", image: nil, tag: 0)
     }
     func process(_ x:Rendition) {
-        switch x.location {
-        case .orderBook:
+        switch x {
+        case .navigate(.orderBook):
             selectedViewController = orderBook
-        case .recentTrades:
+        case .navigate(.recentTrades):
             selectedViewController = recentTradeList
-        case .none:
+        case .state:
+            orderBook.process(x)
+            recentTradeList.process(x)
+        default:
             break
         }
-        orderBook.process(x)
-        recentTradeList.process(x)
     }
     func dispatch(_ fx: @escaping (Action) -> Void) {
         broadcast = fx

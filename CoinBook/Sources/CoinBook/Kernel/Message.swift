@@ -8,19 +8,17 @@ enum Action {
 
 /// Temporary state describes how UI will be rendered.
 /// This is ephemeral state generated only for rendering.
-struct Rendition {
+enum Rendition {
     /// Designates where to navigate.
-    /// This can be `nil` to represent "no navigation".
-    var location = Location?.none
-    enum Location { case orderBook, recentTrades }
-    var orderBook = OrderBook()
-    struct OrderBook {
-        var items = [State.Order]()
-        var totals = [Double]()
-    }
-    var recentTrade = RecentTrade()
-    struct RecentTrade {
-        var items = [State.Trade]()
+    case navigate(Location)
+    case state(State)
+    /// Renders a warnging for some errors.
+    case warning(Error)
+}
+extension Rendition {
+    var state: State? {
+        guard case let .state(x) = self else { return nil }
+        return x
     }
 }
 

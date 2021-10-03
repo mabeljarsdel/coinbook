@@ -26,42 +26,74 @@ extension BitMEXChannel {
         var subscribe: Topic
         var success: Bool
     }
-    struct Table: Decodable {
-        var metadata: TableMetadata
-        var rows: TableRows
+    enum Table: Decodable {
+        case orderBookL2(metadata:TableMetadata, rows:[OrderBookL2])
+        case trade(metadata:TableMetadata, rows:[Trade])
+        case unknown(metadata:TableMetadata)
         init(from decoder: Decoder) throws {
-            metadata = try TableMetadata(from: decoder)
+            let metadata = try TableMetadata(from: decoder)
             struct RowsDecoding<T:Decodable>: Decodable { var data:[T] }
             switch metadata.table {
             case "orderBookL2_25", "orderBookL2":
-                rows = .orderBookL2(try RowsDecoding<OrderBookL2>(from: decoder).data)
+                let rows = try RowsDecoding<OrderBookL2>(from: decoder).data
+                self = .orderBookL2(metadata: metadata, rows: rows)
             case "trade":
-                rows = .trade(try RowsDecoding<Trade>(from: decoder).data)
+                let rows = try RowsDecoding<Trade>(from: decoder).data
+                self = .trade(metadata: metadata, rows: rows)
             default:
-                rows = .unknown
+                self = .unknown(metadata: metadata)
             }
         }
     }
     struct TableMetadata: Decodable {
+        /// Table name / Subscription topic.
+        /// Could be "trade", "order", "instrument", etc.
         var table: String
+        /// The type of the message.
         var action: Action
-        enum Action: String, Codable { case partial, update, insert, delete }
-        struct Ignore {}
+        enum Action: String, Codable {
+            /// This is a table image, replace your data entirely.
+            case partial
+            /// Update a single row.
+            case update
+            /// Insert a new row.
+            case insert
+            /// Delete a row.
+            case delete
+        }
+        
+        ///
+        /// The below fields define the table and are only sent on a `partial`.
+        ///
+
+        /// Attribute names that are guaranteed to be unique per object.
+        /// If more than one is provided, the key is composite.
+        /// Use these key names to uniquely identify rows. Key columns are guaranteed
+        /// to be present on all data received.
         var keys: [String]?
+        /// This lists key relationships with other tables.
+        /// For example, `quote`'s foreign key is {"symbol": "instrument"}
         var foreignKeys: [String:String]?
+        /// This lists the shape of the table. The possible types:
+        /// "symbol" - In most languages this is equal to "string"
+        /// "guid"
+        /// "timestamp"
+        /// "timespan"
+        /// "float"
+        /// "long"
+        /// "integer"
+        /// "boolean"
         var types: [String:`Type`]?
         enum `Type`: String, Codable { case symbol, guid, timestamp, timespan, float, long, integer, boolean }
+        /// When multiple subscriptions are active to the same table, use the `filter` to correlate which datagram
+        /// belongs to which subscription, as the `table` property will not contain the subscription's symbol.
         var filter: Filter?
         struct Filter: Codable {
             var account: Double?
             var symbol: String?
         }
+        /// These are internal fields that indicate how responses are sorted and grouped.
         var attributes: [String:String]?
-    }
-    enum TableRows {
-        case orderBookL2([OrderBookL2])
-        case trade([Trade])
-        case unknown
     }
     
     /// https://github.com/BitMEX/api-connectors/blob/56edbdff0139fa85171dcd8b00b43d434d81c31c/swagger.json#L5749
