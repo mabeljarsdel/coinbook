@@ -13,9 +13,10 @@ let package = Package(
     ],
     dependencies: [
         .package(name: "Starscream", url: "https://github.com/daltoniam/Starscream", from: "3.1.1"),
+        .package(name: "JJLISO8601DateFormatter", url: "https://github.com/michaeleisel/JJLISO8601DateFormatter", from: "0.1.2"),
     ],
     targets: [
-        .target(name: "CoinBook", dependencies: ["Starscream"]),
+        .target(name: "CoinBook", dependencies: ["Starscream", "JJLISO8601DateFormatter"]),
         .testTarget(name: "CoinBookUnitTests", dependencies: ["CoinBook"]),
         /// Collection of unit tests that can may fail unexpectedly.
         /// These tests depends on external I/O, therefore cannot be tested deterministic.

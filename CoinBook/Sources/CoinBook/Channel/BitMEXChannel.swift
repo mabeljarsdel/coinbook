@@ -23,7 +23,7 @@ final class BitMEXChannel {
         switch cmd {
         case let .subscribe(topics):
             do {
-                let m = SubscriptionOp(op: "subscribe", args: topics)
+                let m = SubscriptionOp(op: "subscribe", args: topics.map { x in x.rawValue })
                 let d = try jsonenc.encode(m)
                 let s = String(data: d, encoding: .utf8) ?? ""
                 rawchan.queue(.sendText(s))
@@ -33,7 +33,7 @@ final class BitMEXChannel {
             }
         case let .unsubscribe(topics):
             do {
-                let m = SubscriptionOp(op: "unsubscribe", args: topics)
+                let m = SubscriptionOp(op: "unsubscribe", args: topics.map { x in x.rawValue })
                 let d = try jsonenc.encode(m)
                 let s = String(data: d, encoding: .utf8) ?? ""
                 rawchan.queue(.sendText(s))
@@ -55,6 +55,9 @@ final class BitMEXChannel {
                 cast(m)
             }
             catch let err {
+                let f = FileHandle(forWritingAtPath: "/Users/Dev/tmp/bb")!
+                f.write((s + "\n").data(using: .utf8) ?? Data())
+                print(err)
                 cast(.error(err))
             }
         }

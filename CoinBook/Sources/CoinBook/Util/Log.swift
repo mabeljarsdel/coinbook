@@ -1,10 +1,3 @@
-//
-//  File.swift
-//  
-//
-//  Created by Hoon H. on 2021/10/03.
-//
-
 import Foundation
 
 /// Placeholder for logging facility.
@@ -22,5 +15,12 @@ func debugLog<T>(_ x:T) {
 /// Placeholder for debug-logging facility.
 func verboseLog<T>(_ x:T) {
     #if VERBOSE
+    #endif
+}
+
+/// Placeholder for debug-logging facility.
+func verboseDump<T>(_ x:T) {
+    #if VERBOSE
+//    dump(x)
     #endif
 }

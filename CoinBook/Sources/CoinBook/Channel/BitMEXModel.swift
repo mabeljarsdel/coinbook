@@ -25,7 +25,7 @@ extension BitMEXChannel {
         var docs:String
     }
     struct Subscribe: Codable {
-        var subscribe: String
+        var subscribe: Topic
         var success: Bool
     }
     struct Table: Decodable {
@@ -56,7 +56,7 @@ extension BitMEXChannel {
         var filter: Filter?
         struct Filter: Codable {
             var account: Double?
-            var symbol: String
+            var symbol: String?
         }
         var attributes: [String:String]?
     }
@@ -89,8 +89,8 @@ extension BitMEXChannel {
     }
     
     enum Command: Codable {
-        case subscribe(topics:[String])
-        case unsubscribe(topics:[String])
+        case subscribe(topics:[Topic])
+        case unsubscribe(topics:[Topic])
     }
     enum Report: Decodable {
         case info(Info)

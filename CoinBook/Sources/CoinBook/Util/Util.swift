@@ -17,7 +17,3 @@ func assertGCDQ(_ gcdq: @autoclosure() -> DispatchQueue) {
     dispatchPrecondition(condition: .onQueue(gcdq()))
     #endif
 }
-
-extension String {
-
-}
