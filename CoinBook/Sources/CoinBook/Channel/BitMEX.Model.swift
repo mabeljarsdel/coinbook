@@ -112,7 +112,11 @@ extension BitMEXChannel {
         var size: Int64?
         var price: Double?
         var tickDirection: String?
-        var trdMatchID: String? /// GUID?
+        /// Unique trade ID.
+        /// - Described in FIX 5.0 spec: https://www.onixs.biz/fix-dictionary/5.0.SP2/msgType_AE_6569.html
+        /// - Field `880`. Optional field.
+        /// - This is GUID form. (UUID?)
+        var trdMatchID: String?
         var grossValue: Int64?
         var homeNotional: Double?
         var foreignNotional: Double?
@@ -144,7 +148,7 @@ extension BitMEXChannel {
             if c.contains(.error) {
                 self = .error(Issue.bitMEX(.serverError(try c.decode(String.self, forKey: .error))))
             }
-            throw Issue.bitMEX(.badFormMessage(message:"Cannot determin message type.", codingPath: decoder.codingPath))
+            throw Issue.bitMEX(.badFormMessage(message:"Cannot determine message type.", codingPath: decoder.codingPath))
         }
         typealias CodingKeys = Field
         enum Field: String, CodingKey {

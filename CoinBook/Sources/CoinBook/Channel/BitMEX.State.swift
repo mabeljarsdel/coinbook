@@ -1,4 +1,5 @@
 import Foundation
+import JJLISO8601DateFormatter
 
 extension BitMEX.OrderBook {
     func scanCoreState() throws -> State.OrderBook {
@@ -15,6 +16,28 @@ extension BitMEX.OrderBook {
         return result
     }
 }
+extension BitMEX.RecentTradeList {
+    func scanCoreState() -> [State.Trade] {
+        table.map({ x in State.Trade(
+            id: x.trade.trdMatchID ?? "",
+            price: x.trade.price ?? -1,
+            quantity: x.trade.size ?? -1,
+            side: State.TradeSide(rawValue: x.trade.side ?? ""),
+            time: rfc3338Form.date(from: x.trade.timestamp) ?? .distantPast) })
+    }
+}
+private let rfc3338Form = {
+    let x = JJLISO8601DateFormatter()
+    x.formatOptions = [
+        .withInternetDateTime,
+        .withFullDate,
+        .withFullTime,
+        .withFractionalSeconds,
+        .withTimeZone,
+    ]
+    return x
+}() as JJLISO8601DateFormatter
+
 extension BitMEX {
     struct State {
         var orderBook = OrderBook()
@@ -50,7 +73,7 @@ extension BitMEX {
         private var table = BTMap<ID,Record>()
         private var buys = BTSortedSet<PriceSortedIndex>()
         private var sells = BTSortedSet<PriceSortedIndex>()
-        /// This will globally unique as `id` will be counted in equality and comparison operations,
+        /// This will be globally unique as `id` will be counted in equality and comparison operations,
         private struct PriceSortedIndex: Equatable, Comparable {
             var price: Double
             var id: ID

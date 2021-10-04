@@ -2,11 +2,21 @@ import Foundation
 import UIKit
 
 extension Shell {
-    static func orderBook2() -> UIView & OrderBook2IO {
-        return OrderBook2Impl()
+    static func orderBook() -> UIViewController & OrderBookIO {
+        let cellSize = NSCollectionLayoutSize(
+            widthDimension: .fractionalWidth(1),
+            heightDimension: .absolute(44))
+        let layout = UICollectionViewCompositionalLayout(
+            section: NSCollectionLayoutSection(
+                group: NSCollectionLayoutGroup.vertical(
+                    layoutSize: cellSize,
+                    subitems: [
+                        NSCollectionLayoutItem(layoutSize: cellSize),
+                    ])))
+        return OrderBookImpl(collectionViewLayout: layout)
     }
 }
-protocol OrderBook2IO {
+protocol OrderBookIO {
     func process(_ x:Rendition)
     func dispatch(_ fx:@escaping(Action) -> Void)
 }
@@ -72,15 +82,7 @@ private extension State {
     }
 }
 
-
-
-
-
-
-
-
-private final class OrderBook2Impl: UIView, OrderBook2IO, UICollectionViewDataSource {
-    private let collectionView = UICollectionView(frame: .zero, collectionViewLayout: makeLayout())
+private final class OrderBookImpl: UICollectionViewController, OrderBookIO {
     private let throttle = Throttle<State>(interval: 0.1)
     private var broadcast = noop as (Action) -> Void
     
@@ -91,16 +93,6 @@ private final class OrderBook2Impl: UIView, OrderBook2IO, UICollectionViewDataSo
         guard let x = x.state else { return }
         if !isInstalled {
             isInstalled = true
-            addSubview(collectionView)
-            NSLayoutConstraint.activate([
-                collectionView.leadingAnchor.constraint(equalTo: leadingAnchor),
-                collectionView.trailingAnchor.constraint(equalTo: trailingAnchor),
-                collectionView.topAnchor.constraint(equalTo: topAnchor),
-                collectionView.bottomAnchor.constraint(equalTo: bottomAnchor),
-            ])
-            collectionView.translatesAutoresizingMaskIntoConstraints = false
-            collectionView.register(OrderBookItemCell.self, forCellWithReuseIdentifier: OrderBookItemCell.reuseID)
-            collectionView.dataSource = self
             throttle.dispatch(on: .main) { [weak self] x in self?.render(x) }
         }
         throttle.queue(x)
@@ -127,13 +119,17 @@ private final class OrderBook2Impl: UIView, OrderBook2IO, UICollectionViewDataSo
         broadcast = fx
     }
     
-    func numberOfSections(in collectionView: UICollectionView) -> Int {
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        collectionView.register(OrderBookItemCell.self, forCellWithReuseIdentifier: OrderBookItemCell.reuseID)
+    }
+    override func numberOfSections(in collectionView: UICollectionView) -> Int {
         1
     }
-    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
+    override func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         rendition.maxRowCount()
     }
-    func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
+    override func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: OrderBookItemCell.reuseID, for: indexPath)
         if let cell = cell as? OrderBookItemCell {
             cell.render(rendition, row: indexPath.row)
@@ -199,8 +195,8 @@ private final class OrderBookItemCell: UICollectionViewCell {
             .divided(atDistance: w/2, from: .minXEdge).slice
             .divided(atDistance: w/4, from: .maxXEdge).slice
             .divided(atDistance: w/4 * (barFillRatio ?? 0), from: .maxXEdge).slice
-        buyQuantityLabel.setTextIfDifferent(x?.order.quantity.humanReadableQuantityText() ?? "????")
-        buyPriceLabel.setTextIfDifferent(x?.order.price.humanReadablePriceText() ?? "????")
+        buyQuantityLabel.render(x?.order.quantity.humanReadableQuantityText() ?? "????")
+        buyPriceLabel.render(x?.order.price.humanReadablePriceText() ?? "????")
     }
     func renderSell(_ x:OrderItemRendition?, barFillRatio:CGFloat?) {
         guard lastSell != x else { return }
@@ -211,22 +207,15 @@ private final class OrderBookItemCell: UICollectionViewCell {
             .divided(atDistance: w/2, from: .maxXEdge).slice
             .divided(atDistance: w/4, from: .minXEdge).slice
             .divided(atDistance: w/4 * (barFillRatio ?? 0), from: .minXEdge).slice
-        sellQuantityLabel.setTextIfDifferent(x?.order.quantity.humanReadableQuantityText() ?? "????")
-        sellPriceLabel.setTextIfDifferent(x?.order.price.humanReadablePriceText() ?? "????")
+        sellQuantityLabel.render(x?.order.quantity.humanReadableQuantityText() ?? "????")
+        sellPriceLabel.render(x?.order.price.humanReadablePriceText() ?? "????")
     }
 }
 
-
-private func makeLayout() -> UICollectionViewLayout {
-    let cellSize = NSCollectionLayoutSize(
-        widthDimension: .fractionalWidth(1),
-        heightDimension: .absolute(44))
-    let layout = UICollectionViewCompositionalLayout(
-        section: NSCollectionLayoutSection(
-            group: NSCollectionLayoutGroup.vertical(
-                layoutSize: cellSize,
-                subitems: [
-                    NSCollectionLayoutItem(layoutSize: cellSize),
-                ])))
-    return layout
+private extension UILabel {
+    func render(_ s:String) {
+        guard s != text else { return }
+        text = s
+    }
 }
+

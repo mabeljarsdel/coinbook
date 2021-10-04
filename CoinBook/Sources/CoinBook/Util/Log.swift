@@ -15,6 +15,7 @@ func debugLog<T>(_ x:@autoclosure() -> T) {
 /// Placeholder for debug-logging facility.
 func verboseLog<T>(_ x:@autoclosure() -> T) {
     #if DEBUG
+//    print(x())
     #endif
 }
 

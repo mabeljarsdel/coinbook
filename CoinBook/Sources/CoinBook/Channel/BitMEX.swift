@@ -10,13 +10,13 @@ final class BitMEX {
     }
     
     private let processq = DispatchQueue.main
-    private let stateThrottle = Throttle<BitMEX.State>()
+    private let stateThrottle = Throttle<BitMEX.State>(interval: 0.1)
     private var broadcast = noop as (Report) -> Void
     private var chan = BitMEXChannel?.none
     private var state = BitMEX.State()
     
     init() {
-        stateThrottle.dispatch { [weak self] state in
+        stateThrottle.dispatch(on: processq) { [weak self] state in
             self?.broadcast(.state(state))
         }
     }

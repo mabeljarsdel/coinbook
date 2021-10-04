@@ -12,7 +12,7 @@ protocol HomeShellIO {
 }
 
 private final class HomeShellImpl: UITabBarController, HomeShellIO {
-    private let orderBook = Shell.orderBook1()
+    private let orderBook = Shell.orderBook()
     private let recentTradeList = Shell.recentTradeList()
     private var broadcast = noop as (Action) -> Void
     override func viewDidLoad() {

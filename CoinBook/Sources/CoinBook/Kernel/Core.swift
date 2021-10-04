@@ -41,6 +41,7 @@ final class Core {
         case let .state(x):
             do {
                 state.orderBook = try x.orderBook.scanCoreState()
+                state.trades = x.recentTradeList.scanCoreState()
                 broadcast(.state(state))
             }
             catch let err {
