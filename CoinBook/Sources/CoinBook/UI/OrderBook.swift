@@ -35,6 +35,7 @@ private final class OrderBookShellImpl: UICollectionViewController, OrderBookShe
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        collectionView.backgroundColor = .white
         collectionView.register(OrderBookItemCell.self, forCellWithReuseIdentifier: OrderBookItemCell.reuseID)
     }
     override func numberOfSections(in collectionView: UICollectionView) -> Int {

@@ -16,7 +16,9 @@ final class BitMEX {
     private var state = BitMEX.State()
     
     init() {
-        stateThrottle.dispatch { [weak self] state in self?.broadcast(.state(state)) }
+        stateThrottle.dispatch { [weak self] state in
+            self?.broadcast(.state(state))
+        }
     }
     func queue(_ cmd:Command) {
         processq.async { [weak self] in self?.processCommand(cmd) }
@@ -46,15 +48,14 @@ final class BitMEX {
         case let .table(.orderBookL2(metadata, rows)):
             do {
                 try state.orderBook.applyOrderTable(metadata, rows)
-                broadcast(.state(state))
+                stateThrottle.queue(state)
             }
             catch let err {
                 broadcast(.error(err))
             }
         case let .table(.trade(metadata, rows)):
             state.recentTradeList.applyTradeTable(metadata, rows)
-            stateThrottle
-            broadcast(.state(state))
+            stateThrottle.queue(state)
         default:
             verboseDump(report)
         }

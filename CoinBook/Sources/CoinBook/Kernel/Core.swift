@@ -14,7 +14,7 @@ final class Core {
     private var state = State()
     
     init() {
-        bitmex.dispatch { [weak self] x in self?.processBitMEXReport(x) }
+        bitmex.dispatch { [weak self] x in self?.processq.async { self?.processBitMEXReport(x) } }
         processq.async { [weak self] in self?.bootstrap() }
     }
     func queue(_ cmd:Command) {

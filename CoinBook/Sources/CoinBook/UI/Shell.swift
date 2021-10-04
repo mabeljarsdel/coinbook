@@ -18,6 +18,7 @@ final class Shell {
     private var broadcast = noop as (Report) -> Void
     private var renderCount = 0
     init() {
+        window.backgroundColor = .white
         window.makeKeyAndVisible()
         window.rootViewController = home
         home.dispatch { [weak self] x in self?.broadcast(x) }
