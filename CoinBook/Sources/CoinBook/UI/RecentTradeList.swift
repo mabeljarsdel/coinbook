@@ -27,7 +27,20 @@ private final class RecentTradeListShellImpl: UICollectionViewController, Recent
     func process(_ x:Rendition) {
         guard let x = x.state else { return }
         state = x
-        collectionView.reloadData()
+        let n = state.trades.count
+        let currentRowCount = collectionView.numberOfItems(inSection: 0)
+        if currentRowCount < n {
+            collectionView.insertItems(at: (currentRowCount..<n).map { i in IndexPath(item: i, section: 0) })
+        }
+        if currentRowCount > n {
+            collectionView.deleteItems(at: (n..<currentRowCount).map { i in IndexPath(item: i, section: 0) })
+        }
+        for i in 0..<n {
+            if let cell = collectionView.cellForItem(at: IndexPath(item: i, section: 0)) as? TradeRecordCell {
+                let rend = state.trades[i]
+                cell.render(rend)
+            }
+        }
     }
     func dispatch(_ fx: @escaping (Action) -> Void) {
         broadcast = fx
@@ -47,7 +60,7 @@ private final class RecentTradeListShellImpl: UICollectionViewController, Recent
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: TradeRecordCell.reuseID, for: indexPath)
         if let cell = cell as? TradeRecordCell {
             let trade = state.trades[indexPath.row]
-            cell.process(trade)
+            cell.render(trade)
         }
         return cell
     }
@@ -55,7 +68,7 @@ private final class RecentTradeListShellImpl: UICollectionViewController, Recent
 
 private final class TradeRecordCell: UICollectionViewCell {
     static var reuseID: String { NSStringFromClass(self) }
-    func process(_ x:State.Trade) {
+    func render(_ x:State.Trade) {
         
     }
 }

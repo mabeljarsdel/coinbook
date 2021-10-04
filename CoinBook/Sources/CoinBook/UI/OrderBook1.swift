@@ -2,7 +2,7 @@ import Foundation
 import UIKit
 
 extension Shell {
-    static func orderBook() -> UIViewController & OrderBookShellIO {
+    static func orderBook1() -> UIViewController & OrderBook1IO {
         let cellSize = NSCollectionLayoutSize(
             widthDimension: .fractionalWidth(1),
             heightDimension: .absolute(44))
@@ -13,21 +13,34 @@ extension Shell {
                     subitems: [
                         NSCollectionLayoutItem(layoutSize: cellSize),
                     ])))
-        return OrderBookShellImpl(collectionViewLayout: layout)
+        return OrderBook1Impl(collectionViewLayout: layout)
     }
 }
-protocol OrderBookShellIO {
+protocol OrderBook1IO {
     func process(_ x:Rendition)
     func dispatch(_ fx:@escaping(Action) -> Void)
 }
 
-private final class OrderBookShellImpl: UICollectionViewController, OrderBookShellIO {
+private final class OrderBook1Impl: UICollectionViewController, OrderBook1IO {
     private var state = State()
     private var broadcast = noop as (Action) -> Void
     func process(_ x:Rendition) {
         guard let x = x.state else { return }
         state = x
-        collectionView.reloadData()
+        let n = state.maxRowCount()
+        let currentRowCount = collectionView.numberOfItems(inSection: 0)
+        if currentRowCount < n {
+            collectionView.insertItems(at: (currentRowCount..<n).map { i in IndexPath(item: i, section: 0) })
+        }
+        if currentRowCount > n {
+            collectionView.deleteItems(at: (n..<currentRowCount).map { i in IndexPath(item: i, section: 0) })
+        }
+        for i in 0..<n {
+            if let cell = collectionView.cellForItem(at: IndexPath(item: i, section: 0)) as? OrderBookItemCell {
+                let rend = state.renditionForRow(i)
+                cell.render(rend)
+            }
+        }
     }
     func dispatch(_ fx: @escaping (Action) -> Void) {
         broadcast = fx
@@ -42,7 +55,7 @@ private final class OrderBookShellImpl: UICollectionViewController, OrderBookShe
         1
     }
     override func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        max(state.orderBook.buys.count, state.orderBook.sells.count)
+        state.maxRowCount()
     }
     override func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: OrderBookItemCell.reuseID, for: indexPath)
@@ -51,7 +64,7 @@ private final class OrderBookShellImpl: UICollectionViewController, OrderBookShe
             let row = indexPath.row
             let buy = row < book.buys.count ? book.buys[row] : nil
             let sell = row < book.sells.count ? book.sells[row] : nil
-            cell.process((buy,sell))
+            cell.render((buy,sell))
         }
         return cell
     }
@@ -65,7 +78,7 @@ private final class OrderBookItemCell: UICollectionViewCell {
     private let sellQuantityLabel = UILabel()
     private let sellPriceLabel = UILabel()
     private var isInstalled = false
-    func process(_ x:(buy:State.Order?, sell:State.Order?)) {
+    func render(_ x:(buy:State.Order?, sell:State.Order?)) {
         if !isInstalled {
             isInstalled = true
             contentView.addSubview(buyQuantityLabel)
@@ -108,6 +121,9 @@ private final class OrderBookItemCell: UICollectionViewCell {
 
 
 private extension State {
+    func maxRowCount() -> Int {
+        max(orderBook.buys.count, orderBook.sells.count)
+    }
     func renditionForRow(_ row:Int) -> (buy:State.Order?, sell:State.Order?) {
         let book = orderBook
         let buy = row < book.buys.count ? book.buys[row] : nil

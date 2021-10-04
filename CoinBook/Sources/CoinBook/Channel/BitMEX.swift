@@ -49,6 +49,7 @@ final class BitMEX {
             do {
                 try state.orderBook.applyOrderTable(metadata, rows)
                 stateThrottle.queue(state)
+//                broadcast(.state(state))
             }
             catch let err {
                 broadcast(.error(err))
@@ -56,6 +57,7 @@ final class BitMEX {
         case let .table(.trade(metadata, rows)):
             state.recentTradeList.applyTradeTable(metadata, rows)
             stateThrottle.queue(state)
+//            broadcast(.state(state))
         default:
             verboseDump(report)
         }
