@@ -99,31 +99,6 @@ private final class TableView: UIView {
             rowLayer.render(rowData)
         }
         setNeedsLayout()
-        
-        
-        
-//        rendition = rend
-//        let xs = rendition.state.trades
-//        if rowViews.count < xs.count {
-//            for _ in rowViews.count..<xs.count {
-//                let newRowLayer = RowView()
-//                addSubview(newRowLayer)
-//                rowViews.append(newRowLayer)
-//            }
-//        }
-//        if rowViews.count > xs.count {
-//            for i in xs.count..<rowViews.count {
-//                rowViews[i].removeFromSuperview()
-//            }
-//            rowViews.removeSubrange(xs.count...)
-//        }
-//
-//        for i in rowViews.indices {
-//            let rowData = xs[i]
-//            let rowLayer = rowViews[i]
-//            rowLayer.render(rowData)
-//        }
-//        setNeedsLayout()
     }
     override func layoutSubviews() {
         super.layoutSubviews()

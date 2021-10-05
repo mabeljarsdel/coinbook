@@ -100,6 +100,7 @@ private final class OrderBook2Impl: UIView, OrderBook2IO, UICollectionViewDataSo
             ])
             collectionView.translatesAutoresizingMaskIntoConstraints = false
             collectionView.register(OrderBookItemCell.self, forCellWithReuseIdentifier: OrderBookItemCell.reuseID)
+            collectionView.backgroundColor = .systemBackground
             collectionView.dataSource = self
             throttle.dispatch(on: .main) { [weak self] x in self?.render(x) }
         }

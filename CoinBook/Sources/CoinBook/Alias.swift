@@ -1,5 +1,5 @@
-import BTree
+//import BTreeForCoinBook
 
-typealias BTMap<K:Comparable,V> = Map<K,V>
-typealias BTList<T> = List<T>
-typealias BTSortedSet<T:Comparable> = SortedSet<T>
+typealias BTMap<K:Comparable,V> = BTXMap<K,V>
+typealias BTList<T> = BTXList<T>
+typealias BTSortedSet<T:Comparable> = BTXSortedSet<T>

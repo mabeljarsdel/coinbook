@@ -1,5 +1,6 @@
 import Foundation
 
+/// Most abstracted representation of the app essentials.
 struct State {
     var orderBook = OrderBook()
     /// 30 trade items.

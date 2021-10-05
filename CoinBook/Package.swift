@@ -14,10 +14,10 @@ let package = Package(
     dependencies: [
         .package(name: "Starscream", url: "https://github.com/daltoniam/Starscream", from: "3.1.1"),
         .package(name: "JJLISO8601DateFormatter", url: "https://github.com/michaeleisel/JJLISO8601DateFormatter", from: "0.1.2"),
-        .package(name: "BTree", url: "https://github.com/attaswift/BTree", from: "4.1.0")
     ],
     targets: [
-        .target(name: "CoinBook", dependencies: ["Starscream", "JJLISO8601DateFormatter", "BTree"]),
+        .target(name: "CoinBook", dependencies: ["Starscream", "JJLISO8601DateFormatter"]),
+//        .target(name: "BTreeForCoinBook"),
         .testTarget(name: "CoinBookUnitTests", dependencies: ["CoinBook"]),
         /// Collection of unit tests that can may fail unexpectedly.
         /// These tests depends on external I/O, therefore cannot be tested deterministic.
