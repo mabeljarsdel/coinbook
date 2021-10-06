@@ -84,6 +84,7 @@ writing such in-app backend will be very interesting.
 
 Burst (Spike) Section Performance
 ---------------------------------
+```
 32.00 ms   39.5%    0 s          _dispatch_worker_thread2  0x4babc5
 27.00 ms   33.3%    0 s                     dispatch thunk of JSONDecoder.decode<A>(_:from:)
 26.00 ms   32.0%    0 s          Main Thread  0x4baad7
@@ -94,6 +95,7 @@ Burst (Spike) Section Performance
 2.00 ms    2.4%    0 s                               specialized BTXSortedSet.remove(_:)
 1.00 ms    1.2%    0 s                               specialized BTXSortedSet.remove(_:)
 1.00 ms    1.2%    0 s                               specialized BTXMap.subscript.setter
+```
 
 - As I decribed, I do not cover JSON decoding performance here.
 - `BTX-` types are B-Tree implementations.
@@ -128,3 +130,11 @@ Known Issues
   No idea why it does. I guess wrong handling of how `UICollectionView` works.
   I'll implement custom layout/rendering without `UICollectionView`.
 - Nearly no error handling. 
+
+
+
+
+License
+-------
+This code is licensed under "MIT License".
+Copyright(C) Hoon H., Eonil 2021.
