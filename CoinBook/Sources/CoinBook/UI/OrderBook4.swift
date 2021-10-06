@@ -2,11 +2,11 @@ import Foundation
 import UIKit
 
 extension Shell {
-    static func orderBook3() -> UIView & OrderBook3IO {
+    static func orderBook4() -> UIView & OrderBook4IO {
         return OrderBook3Impl()
     }
 }
-protocol OrderBook3IO {
+protocol OrderBook4IO {
     typealias Command = State
     typealias Report = Action
     func process(_ x:Command)
@@ -91,13 +91,13 @@ private extension State {
 
 private let rowHeight = 44 as CGFloat
 
-private final class OrderBook3Impl: UIView, OrderBook3IO, UIScrollViewDelegate {
+private final class OrderBook3Impl: UIView, OrderBook4IO {
     private let stack = UIStackView()
     private let head = Shell.orderBookHead()
     private let line = Shell.AutoLayout.horizontalLine(height: 1)
     private let scroll = UIScrollView()
     private let table = OrderBookTableView()
-    private let vsync = VSyncThrottle<OrderBookRendition>()
+    private let vsync = VSyncThrottle<Command>()
     private var broadcast = noop as (Action) -> Void
     private var isInstalled = false
     private var rendition = OrderBookRendition()
@@ -125,18 +125,13 @@ private final class OrderBook3Impl: UIView, OrderBook3IO, UIScrollViewDelegate {
             scroll.isScrollEnabled = true
             scroll.alwaysBounceVertical = true
             scroll.addSubview(table)
-            scroll.delegate = self
             vsync.dispatch(on: .main, { [weak self] x in self?.render(x) })
         }
-        vsync.queue(x.rendition())
+        vsync.queue(x)
     }
-    func scrollViewDidScroll(_ scrollView: UIScrollView) {
-        render(rendition)
-    }
-    private func render(_ x:OrderBookRendition) {
-        rendition = x
-        let vb = convert(bounds, to: table)
-        table.render(rendition, visibleBounds: vb)
+    private func render(_ x:State) {
+        rendition = x.rendition()
+        table.render(rendition)
         scroll.contentSize.height = CGFloat(rendition.maxRowCount()) * CGFloat(rowHeight)
     }
     func dispatch(_ fx: @escaping (Action) -> Void) {
@@ -148,7 +143,7 @@ private final class OrderBookTableView: UIView {
     private var rendition = OrderBookRendition()
     private var rowViews = [OrderBookRowView]()
     private var isInstalled = false
-    func render(_ x:OrderBookRendition, visibleBounds:CGRect) {
+    func render(_ x:OrderBookRendition) {
         if !isInstalled {
             isInstalled = true
             let n = 20
@@ -183,9 +178,7 @@ private final class OrderBookTableView: UIView {
         
         /// Render all cells.
         for i in 0..<rowViews.count {
-            if visibleBounds.intersects(rowViews[i].frame) {
-                rowViews[i].render(rendition, row: i)
-            }
+            rowViews[i].render(rendition, row: i)
         }
         
         if oldN != newN {
@@ -207,39 +200,35 @@ private final class OrderBookTableView: UIView {
 }
 
 private final class OrderBookRowView: UIView {
-    private let buyTotalFillBar = FillView()
-    private let buyQuantityLabel = UILabel()
-    private let buyPriceLabel = UILabel()
-    private let sellTotalFillBar = FillView()
-    private let sellQuantityLabel = UILabel()
-    private let sellPriceLabel = UILabel()
+    private let buyQuantity = LabelAndFillLayer()
+    private let buyPrice = LabelAndFillLayer()
+    private let sellPrice = LabelAndFillLayer()
+    private let sellQuantity = LabelAndFillLayer()
     private var isInstalled = false
     private var rendition = OrderBookRendition()
     private var rowOffset = Int?.none
     private func installIfNeeded() {
         if !isInstalled {
             isInstalled = true
-            addSubview(buyTotalFillBar)
-            addSubview(buyQuantityLabel)
-            addSubview(buyPriceLabel)
-            addSubview(sellTotalFillBar)
-            addSubview(sellPriceLabel)
-            addSubview(sellQuantityLabel)
-            buyTotalFillBar.isHorizontallyReversed = true
-            buyTotalFillBar.fillColor = .systemGreen.withAlphaComponent(0.25)
-            buyPriceLabel.textColor = .systemGreen
-            buyPriceLabel.textAlignment = .right
-            buyPriceLabel.font = UIFont.monospacedDigitSystemFont(ofSize: UIFont.smallSystemFontSize, weight: .regular)
-            buyPriceLabel.adjustsFontSizeToFitWidth = true
-            buyQuantityLabel.font = UIFont.monospacedDigitSystemFont(ofSize: UIFont.smallSystemFontSize, weight: .regular)
-            buyQuantityLabel.adjustsFontSizeToFitWidth = true
-            sellTotalFillBar.fillColor = .systemRed.withAlphaComponent(0.25)
-            sellQuantityLabel.textAlignment = .right
-            sellPriceLabel.textColor = .systemRed
-            sellPriceLabel.font = UIFont.monospacedDigitSystemFont(ofSize: UIFont.smallSystemFontSize, weight: .regular)
-            sellPriceLabel.adjustsFontSizeToFitWidth = true
-            sellQuantityLabel.font = UIFont.monospacedDigitSystemFont(ofSize: UIFont.smallSystemFontSize, weight: .regular)
-            sellQuantityLabel.adjustsFontSizeToFitWidth = true
+            CATransaction.begin()
+            CATransaction.setDisableActions(true)
+            layer.addSublayer(buyQuantity)
+            layer.addSublayer(buyPrice)
+            layer.addSublayer(sellPrice)
+            layer.addSublayer(sellQuantity)
+            buyQuantity.setStatics(
+                labelTextColor: UIColor.label.cgColor,
+                fillColor: UIColor.clear.cgColor)
+            buyPrice.setStatics(
+                labelTextColor: UIColor.label.cgColor,
+                fillColor: UIColor.systemGreen.withAlphaComponent(0.25).cgColor)
+            sellPrice.setStatics(
+                labelTextColor: UIColor.label.cgColor,
+                fillColor: UIColor.systemRed.withAlphaComponent(0.25).cgColor)
+            sellQuantity.setStatics(
+                labelTextColor: UIColor.label.cgColor,
+                fillColor: UIColor.clear.cgColor)
+            CATransaction.commit()
         }
     }
     func render(_ x:OrderBookRendition, row i:Int?) {
@@ -248,12 +237,21 @@ private final class OrderBookRowView: UIView {
         rowOffset = i
         let buy = rendition.buy.items.elementIfExists(at: rowOffset)
         let sell = rendition.sell.items.elementIfExists(at: rowOffset)
-        buyQuantityLabel.setTextIfDifferent(buy?.order.quantity.humanReadableQuantityText())
-        buyPriceLabel.setTextIfDifferent(buy?.order.price.humanReadablePriceText() ?? "????")
-        sellQuantityLabel.setTextIfDifferent(sell?.order.quantity.humanReadableQuantityText())
-        sellPriceLabel.setTextIfDifferent(sell?.order.price.humanReadablePriceText() ?? "????")
-        buyTotalFillBar.fillRate = rendition.buyRowFillRatio(at: rowOffset) ?? 0
-        sellTotalFillBar.fillRate = rendition.sellRowFillRatio(at: rowOffset) ?? 0
+        CATransaction.begin()
+        CATransaction.setDisableActions(true)
+        buyQuantity.setDynamics(
+            labelText: buy?.order.quantity.humanReadableQuantityText() ?? "????",
+            fillRate: 0)
+        buyPrice.setDynamics(
+            labelText: buy?.order.price.humanReadablePriceText() ?? "????",
+            fillRate: 1)
+        sellPrice.setDynamics(
+            labelText: sell?.order.price.humanReadablePriceText() ?? "????",
+            fillRate: 1)
+        sellQuantity.setDynamics(
+            labelText: sell?.order.quantity.humanReadableQuantityText() ?? "????",
+            fillRate: 0)
+        CATransaction.commit()
     }
     override func layoutSubviews() {
         super.layoutSubviews()
@@ -262,42 +260,51 @@ private final class OrderBookRowView: UIView {
         let (a1,a2) = a.divided(atDistance: w/4, from: .minXEdge)
         let (b1,b2) = b.divided(atDistance: w/4, from: .minXEdge)
         let padding = UIEdgeInsets(top: 0, left: 10, bottom: 0, right: 10)
-        buyQuantityLabel.setFrameIfDifferent(a1.inset(by: padding))
-        buyTotalFillBar.setFrameIfDifferent(a2)
-        buyPriceLabel.setFrameIfDifferent(a2.inset(by: padding))
-        sellTotalFillBar.setFrameIfDifferent(b1)
-        sellPriceLabel.setFrameIfDifferent(b1.inset(by: padding))
-        sellQuantityLabel.setFrameIfDifferent(b2.inset(by: padding))
+        buyQuantity.setFrameIfDifferent(a1.inset(by: padding))
+        buyPrice.setFrameIfDifferent(a2.inset(by: padding))
+        sellPrice.setFrameIfDifferent(b1.inset(by: padding))
+        sellQuantity.setFrameIfDifferent(b2.inset(by: padding))
     }
 }
 
-private final class FillView: UIView {
-    private let barLayer = CALayer()
-    private var isInstalled = false
-    
-    var isHorizontallyReversed = false
-    var fillColor = UIColor.white {
-        didSet {
-            barLayer.backgroundColor = fillColor.cgColor
-        }
+
+private final class LabelAndFillLayer: CALayer {
+    private let fill = CALayer()
+    private let label = CATextLayer()
+    private var latestLabelText = ""
+    override init() {
+        super.init()
+        addSublayer(fill)
+        addSublayer(label)
+        label.contentsScale = UIScreen.main.scale
+        label.contentsGravity = .center
+        label.alignmentMode = .center
+//        label.shouldRasterize = true
+//        label.rasterizationScale = UIScreen.main.scale
     }
-    var fillRate = 0 as CGFloat {
-        didSet {
-            if !isInstalled {
-                isInstalled = true
-                layer.addSublayer(barLayer)
-            }
-            setNeedsLayout()
-            layoutIfNeeded()
-        }
+    @available(*, unavailable)
+    required init?(coder: NSCoder) {
+        fatalError("unsupported.")
     }
-    override func layoutSubviews() {
-        super.layoutSubviews()
+    override func layoutSublayers() {
+        super.layoutSublayers()
         CATransaction.begin()
         CATransaction.setDisableActions(true)
-        barLayer.frame = isHorizontallyReversed
-            ? layer.bounds.divided(atDistance: layer.bounds.width * fillRate, from: .maxXEdge).slice
-            : layer.bounds.divided(atDistance: layer.bounds.width * fillRate, from: .minXEdge).slice
+        fill.frame = bounds
+        label.frame = bounds
         CATransaction.commit()
     }
+    func setStatics(labelTextColor:CGColor, fillColor:CGColor) {
+        fill.backgroundColor = fillColor
+        label.foregroundColor = labelTextColor
+        label.font = defaultFont
+        label.fontSize = UIFont.smallSystemFontSize
+    }
+    func setDynamics(labelText:String, fillRate:CGFloat) {
+        if latestLabelText != labelText {
+            label.string = labelText
+        }
+    }
 }
+
+private let defaultFont = UIFont.monospacedDigitSystemFont(ofSize: UIFont.smallSystemFontSize, weight: .regular)

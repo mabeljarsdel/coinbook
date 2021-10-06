@@ -24,6 +24,7 @@ final class HomeTab: UIView {
             orderBookButton.dispatch { [weak self] _ in self?.onOrderButtonTap() }
             recentTradeListButton.setLabel("Recent Trades")
             recentTradeListButton.dispatch { [weak self] _ in self?.onRecentTradeListButtonTap() }
+            onOrderButtonTap()
         }
     }
     private func onOrderButtonTap() {

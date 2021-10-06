@@ -95,6 +95,12 @@ extension UILabel {
 }
 
 
+extension CALayer {
+    func setFrameIfDifferent(_ f:CGRect) {
+        guard f != frame else { return }
+        frame = f
+    }
+}
 extension UIView {
     func setFrameIfDifferent(_ f:CGRect) {
         guard f != frame else { return }
