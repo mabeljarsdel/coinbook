@@ -26,7 +26,7 @@
 /// Due to its tree-based structure, `Map` is able to provide efficient implementations for several operations 
 /// that would be slower with dictionaries.
 ///
-public struct BTXMap<Key: Comparable, Value> {
+struct BTXMap<Key: Comparable, Value> {
     // Typealiases
     internal typealias Tree = BTree<Key, Value>
 
@@ -42,7 +42,7 @@ extension BTXMap {
     //MARK: Initializers
 
     /// Initialize an empty map.
-    public init() {
+    init() {
         self.tree = Tree()
     }
 }
@@ -53,7 +53,7 @@ extension BTXMap {
     /// If the sequence contains elements with duplicate keys, only the last element is kept in the map.
     ///
     /// - Complexity: O(*n* * log(*n*)) where *n* is the number of items in `elements`.
-    public init<S: Sequence>(_ elements: S) where S.Element == Element {
+    init<S: Sequence>(_ elements: S) where S.Element == Element {
         self.tree = Tree(elements, dropDuplicates: true)
     }
 
@@ -62,14 +62,14 @@ extension BTXMap {
     /// If the sequence contains elements with duplicate keys, only the last element is kept in the map.
     ///
     /// - Complexity: O(*n*) where *n* is the number of items in `elements`.
-    public init<S: Sequence>(sortedElements elements: S) where S.Element == Element {
+    init<S: Sequence>(sortedElements elements: S) where S.Element == Element {
         self.tree = Tree(sortedElements: elements, dropDuplicates: true)
     }
 }
 
 extension BTXMap: ExpressibleByDictionaryLiteral {
     /// Initialize a new map from the given elements.
-    public init(dictionaryLiteral elements: (Key, Value)...) {
+    init(dictionaryLiteral elements: (Key, Value)...) {
         self.tree = Tree(elements, dropDuplicates: true)
     }
 }
@@ -78,7 +78,7 @@ extension BTXMap: CustomStringConvertible {
     //MARK: Conversion to string
     
     /// A textual representation of this map.
-    public var description: String {
+    var description: String {
         let contents = self.map { (key, value) -> String in
             let ks = String(reflecting: key)
             let vs = String(reflecting: value)
@@ -90,7 +90,7 @@ extension BTXMap: CustomStringConvertible {
 
 extension BTXMap: CustomDebugStringConvertible {
     /// A textual representation of this map, suitable for debugging.
-    public var debugDescription: String {
+    var debugDescription: String {
         let contents = self.map { (key, value) -> String in
             let ks = String(reflecting: key)
             let vs = String(reflecting: value)
@@ -103,33 +103,33 @@ extension BTXMap: CustomDebugStringConvertible {
 extension BTXMap: BidirectionalCollection {
     //MARK: CollectionType
     
-    public typealias Index = BTreeIndex<Key, Value>
-    public typealias Iterator = BTreeIterator<Key, Value>
-    public typealias Element = (Key, Value)
-    public typealias _Element = Element // For _IndexableBase
-    public typealias SubSequence = BTXMap<Key, Value>
+    typealias Index = BTreeIndex<Key, Value>
+    typealias Iterator = BTreeIterator<Key, Value>
+    typealias Element = (Key, Value)
+    typealias _Element = Element // For _IndexableBase
+    typealias SubSequence = BTXMap<Key, Value>
 
     /// The index of the first element when non-empty. Otherwise the same as `endIndex`.
     ///
     /// - Complexity: O(log(`count`))
-    public var startIndex: Index {
+    var startIndex: Index {
         return tree.startIndex
     }
 
     /// The "past-the-end" element index; the successor of the last valid subscript argument.
     ///
     /// - Complexity: O(1)
-    public var endIndex: Index {
+    var endIndex: Index {
         return tree.endIndex
     }
 
     /// The number of (key, value) pairs in this map.
-    public var count: Int {
+    var count: Int {
         return tree.count
     }
 
     /// True iff this collection has no elements.
-    public var isEmpty: Bool {
+    var isEmpty: Bool {
         return count == 0
     }
 
@@ -137,7 +137,7 @@ extension BTXMap: BidirectionalCollection {
     ///
     /// - Requires: `index` originated from an unmutated copy of this map.
     /// - Complexity: O(1)
-    public subscript(index: Index) -> Element {
+    subscript(index: Index) -> Element {
         return tree[index]
     }
 
@@ -145,12 +145,12 @@ extension BTXMap: BidirectionalCollection {
     ///
     /// - Requires: The indexes in `range` originated from an unmutated copy of this map.
     /// - Complexity: O(log(`count`))
-    public subscript(range: Range<Index>) -> BTXMap<Key, Value> {
+    subscript(range: Range<Index>) -> BTXMap<Key, Value> {
         return BTXMap(tree[range])
     }
 
     /// Return an iterator over all (key, value) pairs in this map, in ascending key order.
-    public func makeIterator() -> Iterator {
+    func makeIterator() -> Iterator {
         return tree.makeIterator()
     }
 
@@ -158,7 +158,7 @@ extension BTXMap: BidirectionalCollection {
     ///
     /// - Requires: `index` is a valid index of this map and it is not equal to `endIndex`.
     /// - Complexity: Amortized O(1).
-    public func index(after index: Index) -> Index {
+    func index(after index: Index) -> Index {
         return tree.index(after: index)
     }
 
@@ -166,7 +166,7 @@ extension BTXMap: BidirectionalCollection {
     ///
     /// - Requires: `index` is a valid index of this map and it is not equal to `endIndex`.
     /// - Complexity: Amortized O(1).
-    public func formIndex(after index: inout Index) {
+    func formIndex(after index: inout Index) {
         tree.formIndex(after: &index)
     }
 
@@ -174,7 +174,7 @@ extension BTXMap: BidirectionalCollection {
     ///
     /// - Requires: `index` is a valid index of this map and it is not equal to `startIndex`.
     /// - Complexity: Amortized O(1).
-    public func index(before index: Index) -> Index {
+    func index(before index: Index) -> Index {
         return tree.index(before: index)
     }
 
@@ -182,7 +182,7 @@ extension BTXMap: BidirectionalCollection {
     ///
     /// - Requires: `index` is a valid index of this map and it is not equal to `startIndex`.
     /// - Complexity: Amortized O(1).
-    public func formIndex(before index: inout Index) {
+    func formIndex(before index: inout Index) {
         tree.formIndex(before: &index)
     }
 
@@ -192,7 +192,7 @@ extension BTXMap: BidirectionalCollection {
     ///              If `n` is positive, it must not exceed the distance from `index` to `endIndex`.
     ///              If `n` is negative, it must not be less than the distance from `index` to `startIndex`.
     /// - Complexity: O(log(*count*)) where *count* is the number of elements in the map.
-    public func index(_ i: Index, offsetBy n: Int) -> Index {
+    func index(_ i: Index, offsetBy n: Int) -> Index {
         return tree.index(i, offsetBy: n)
     }
 
@@ -202,7 +202,7 @@ extension BTXMap: BidirectionalCollection {
     ///              If `n` is positive, it must not exceed the distance from `index` to `endIndex`.
     ///              If `n` is negative, it must not be less than the distance from `index` to `startIndex`.
     /// - Complexity: O(log(*count*)) where *count* is the number of elements in the map.
-    public func formIndex(_ i: inout Index, offsetBy n: Int) {
+    func formIndex(_ i: inout Index, offsetBy n: Int) {
         tree.formIndex(&i, offsetBy: n)
     }
 
@@ -210,7 +210,7 @@ extension BTXMap: BidirectionalCollection {
     ///
     /// - Requires: `index` and `limit` must be valid indices in this map. The operation must not advance the index beyond `endIndex` or before `startIndex`.
     /// - Complexity: O(log(*count*)) where *count* is the number of elements in the map.
-    public func index(_ i: Index, offsetBy n: Int, limitedBy limit: Index) -> Index? {
+    func index(_ i: Index, offsetBy n: Int, limitedBy limit: Index) -> Index? {
         return tree.index(i, offsetBy: n, limitedBy: limit)
     }
 
@@ -219,7 +219,7 @@ extension BTXMap: BidirectionalCollection {
     /// - Requires: `index` and `limit` must be valid indices in this map. The operation must not advance the index beyond `endIndex` or before `startIndex`.
     /// - Complexity: O(log(*count*)) where *count* is the number of elements in the map.
     @discardableResult
-    public func formIndex(_ i: inout Index, offsetBy n: Int, limitedBy limit: Index) -> Bool {
+    func formIndex(_ i: inout Index, offsetBy n: Int, limitedBy limit: Index) -> Bool {
         return tree.formIndex(&i, offsetBy: n, limitedBy: limit)
     }
 
@@ -227,7 +227,7 @@ extension BTXMap: BidirectionalCollection {
     ///
     /// - Requires: `start` and `end` must be valid indices in this map.
     /// - Complexity: O(1)
-    public func distance(from start: Index, to end: Index) -> Int {
+    func distance(from start: Index, to end: Index) -> Int {
         return tree.distance(from: start, to: end)
     }
 }
@@ -238,7 +238,7 @@ extension BTXMap {
     /// Call `body` on each element in `self` in ascending key order.
     ///
     /// - Complexity: O(`count`)
-    public func forEach(_ body: (Element) throws -> ()) rethrows {
+    func forEach(_ body: (Element) throws -> ()) rethrows {
         try tree.forEach(body)
     }
 
@@ -246,7 +246,7 @@ extension BTXMap {
     /// The elements are transformed in ascending key order.
     ///
     /// - Complexity: O(`count`)
-    public func map<T>(_ transform: (Element) throws -> T) rethrows -> [T] {
+    func map<T>(_ transform: (Element) throws -> T) rethrows -> [T] {
         var result: [T] = []
         result.reserveCapacity(self.count)
         try self.forEach {
@@ -258,7 +258,7 @@ extension BTXMap {
     /// Return an `Array` containing the concatenated results of mapping `transform` over `self`.
     ///
     /// - Complexity: O(`count`)
-    public func flatMap<S: Sequence>(_ transform: (Element) throws -> S) rethrows -> [S.Element] {
+    func flatMap<S: Sequence>(_ transform: (Element) throws -> S) rethrows -> [S.Element] {
         var result: [S.Element] = []
         try self.forEach { element in
             result.append(contentsOf: try transform(element))
@@ -269,7 +269,7 @@ extension BTXMap {
     /// Return an `Array` containing the non-`nil` results of mapping `transform` over `self`.
     ///
     /// - Complexity: O(`count`)
-    public func flatMap<T>(_ transform: (Element) throws -> T?) rethrows -> [T] {
+    func flatMap<T>(_ transform: (Element) throws -> T?) rethrows -> [T] {
         var result: [T] = []
         try self.forEach { element in
             if let t = try transform(element) {
@@ -286,7 +286,7 @@ extension BTXMap {
     /// I.e., return `combine(combine(...combine(combine(initial, self[0]), self[1]),...self[count-2]), self[count-1])`.
     ///
     /// - Complexity: O(`count`)
-    public func reduce<T>(_ initialResult: T, _ nextPartialResult: (T, Element) throws -> T) rethrows -> T {
+    func reduce<T>(_ initialResult: T, _ nextPartialResult: (T, Element) throws -> T) rethrows -> T {
         var result = initialResult
         try self.forEach {
             result = try nextPartialResult(result, $0)
@@ -299,19 +299,19 @@ extension BTXMap {
     //MARK: Dictionary-like methods
 
     /// A collection containing just the keys in this map, in ascending order.
-    public var keys: LazyMapCollection<BTXMap<Key, Value>, Key> {
+    var keys: LazyMapCollection<BTXMap<Key, Value>, Key> {
         return self.lazy.map { $0.0 }
     }
 
     /// A collection containing just the values in this map, in order of ascending keys.
-    public var values: LazyMapCollection<BTXMap<Key, Value>, Value> {
+    var values: LazyMapCollection<BTXMap<Key, Value>, Value> {
         return self.lazy.map { $0.1 }
     }
 
     /// Provides access to the value for a given key. Nonexistent values are represented as `nil`.
     /// 
     /// - Complexity: O(log(`count`))
-    public subscript(key: Key) -> Value? {
+    subscript(key: Key) -> Value? {
         get {
             return tree.value(of: key)
         }
@@ -328,7 +328,7 @@ extension BTXMap {
     /// Returns the index for the given key, or `nil` if the key is not present in this map.
     ///
     /// - Complexity: O(log(`count`))
-    public func index(forKey key: Key) -> Index? {
+    func index(forKey key: Key) -> Index? {
         return tree.index(forKey: key)
     }
 
@@ -339,7 +339,7 @@ extension BTXMap {
     ///
     /// - Complexity: O(log(`count`))
     @discardableResult
-    public mutating func updateValue(_ value: Value, forKey key: Key) -> Value? {
+    mutating func updateValue(_ value: Value, forKey key: Key) -> Value? {
         return tree.insertOrReplace((key, value))?.1
     }
 
@@ -349,7 +349,7 @@ extension BTXMap {
     ///
     /// - Complexity: O(log(`count`))
     @discardableResult
-    public mutating func remove(at index: Index) -> (key: Key, value: Value) {
+    mutating func remove(at index: Index) -> (key: Key, value: Value) {
         return tree.remove(at: index)
     }
 
@@ -360,7 +360,7 @@ extension BTXMap {
     ///
     /// - Complexity: O(log(`count`))
     @discardableResult
-    public mutating func removeValue(forKey key: Key) -> Value? {
+    mutating func removeValue(forKey key: Key) -> Value? {
         return tree.remove(key)?.1
     }
 
@@ -369,7 +369,7 @@ extension BTXMap {
     /// This method invalidates all existing indexes into `self`.
     ///
     /// - Complexity: O(`count`)
-    public mutating func removeAll() {
+    mutating func removeAll() {
         tree = Tree()
     }
 }
@@ -381,28 +381,28 @@ extension BTXMap {
     ///
     /// - Requires: `offset >= 0 && offset < count`
     /// - Complexity: O(log(`count`))
-    public func index(ofOffset offset: Int) -> Index {
+    func index(ofOffset offset: Int) -> Index {
         return tree.index(ofOffset: offset)
     }
 
     /// Returns the offset of the element at `index`.
     ///
     /// - Complexity: O(log(`count`))
-    public func offset(of index: Index) -> Int {
+    func offset(of index: Index) -> Int {
         return tree.offset(of: index)
     }
 
     /// Returns the offset of the element with the given key, or `nil` if there is no such element.
     ///
     /// - Complexity: O(log(`count`))
-    public func offset(of key: Key) -> Int? {
+    func offset(of key: Key) -> Int? {
         return tree.offset(forKey: key)
     }
 
     /// Return the element stored at `offset` in this map.
     ///
     /// - Complexity: O(log(`count`))
-    public func element(atOffset offset: Int) -> Element {
+    func element(atOffset offset: Int) -> Element {
         return tree.element(atOffset: offset)
     }
 
@@ -410,7 +410,7 @@ extension BTXMap {
     ///
     /// - Complexity: O(log(`count`))
     @discardableResult
-    public mutating func updateValue(_ value: Value, atOffset offset: Int) -> Value {
+    mutating func updateValue(_ value: Value, atOffset offset: Int) -> Value {
         return tree.setValue(atOffset: offset, to: value)
     }
 
@@ -418,14 +418,14 @@ extension BTXMap {
     ///
     /// - Complexity: O(log(`count`))
     @discardableResult
-    public mutating func remove(atOffset offset: Int) -> Element {
+    mutating func remove(atOffset offset: Int) -> Element {
         return tree.remove(atOffset: offset)
     }
 
     /// Remove all (key, value) pairs in the specified offset range.
     ///
     /// - Complexity: O(log(`count`))
-    public mutating func remove(atOffsets offsets: Range<Int>) {
+    mutating func remove(atOffsets offsets: Range<Int>) {
         precondition(offsets.lowerBound >= 0 && offsets.upperBound <= count)
         tree.withCursor(atOffset: offsets.lowerBound) { cursor in
             cursor.remove(offsets.count)
@@ -439,28 +439,28 @@ extension BTXMap {
     /// Return a submap consisting of elements in the specified range of indexes.
     ///
     /// - Complexity: O(log(`count`))
-    public func submap(with range: Range<Index>) -> BTXMap {
+    func submap(with range: Range<Index>) -> BTXMap {
         return BTXMap(tree.subtree(with: range))
     }
 
     /// Return a submap consisting of elements in the specified range of offsets.
     ///
     /// - Complexity: O(log(`count`))
-    public func submap(withOffsets offsets: Range<Int>) -> BTXMap {
+    func submap(withOffsets offsets: Range<Int>) -> BTXMap {
         return BTXMap(tree.subtree(withOffsets: offsets))
     }
 
     /// Return a submap consisting of all elements with keys greater than or equal to `start` but less than `end`.
     ///
     /// - Complexity: O(log(`count`))
-    public func submap(from start: Key, to end: Key) -> BTXMap {
+    func submap(from start: Key, to end: Key) -> BTXMap {
         return BTXMap(tree.subtree(from: start, to: end))
     }
 
     /// Return a submap consisting of all elements with keys greater than or equal to `start` but less than or equal to `end`.
     ///
     /// - Complexity: O(log(`count`))
-    public func submap(from start: Key, through end: Key) -> BTXMap {
+    func submap(from start: Key, through end: Key) -> BTXMap {
         return BTXMap(tree.subtree(from: start, through: end))
     }
 }
@@ -477,7 +477,7 @@ extension BTXMap {
     /// - Complexity:  O(`count`)
     ///
     /// [equivalence relation]: https://en.wikipedia.org/wiki/Equivalence_relation
-    public func elementsEqual(_ other: BTXMap, by isEquivalent: (Element, Element) throws -> Bool) rethrows -> Bool {
+    func elementsEqual(_ other: BTXMap, by isEquivalent: (Element, Element) throws -> Bool) rethrows -> Bool {
         return try tree.elementsEqual(other.tree, by: isEquivalent)
     }
 }
@@ -489,7 +489,7 @@ extension BTXMap where Value: Equatable {
     /// two maps are divergent mutations originating from the same value.
     ///
     /// - Complexity:  O(`count`)
-    public func elementsEqual(_ other: BTXMap) -> Bool {
+    func elementsEqual(_ other: BTXMap) -> Bool {
         return tree.elementsEqual(other.tree)
     }
     
@@ -497,12 +497,12 @@ extension BTXMap where Value: Equatable {
     ///
     /// This function skips over shared subtrees when possible; this can drastically improve performance when the
     /// two maps are divergent mutations originating from the same value.
-    public static func ==(a: BTXMap, b: BTXMap) -> Bool {
+    static func ==(a: BTXMap, b: BTXMap) -> Bool {
         return a.elementsEqual(b)
     }
 
     /// Return true iff `a` is not equal to `b`.
-    public static func !=(a: BTXMap, b: BTXMap) -> Bool {
+    static func !=(a: BTXMap, b: BTXMap) -> Bool {
         return !(a == b)
     }
 }
@@ -517,7 +517,7 @@ extension BTXMap {
     /// this can drastically improve performance when the keys of the two maps aren't too interleaved.
     ///
     /// - Complexity: O(`count`)
-    public func merging(_ other: BTXMap) -> BTXMap {
+    func merging(_ other: BTXMap) -> BTXMap {
         return BTXMap(self.tree.union(other.tree, by: .groupingMatches))
     }
 
@@ -528,7 +528,7 @@ extension BTXMap {
     /// this can drastically improve performance when the keys of the two maps aren't too interleaved.
     ///
     /// - Complexity: O(`count`)
-    public static func +(a: BTXMap, b: BTXMap) -> BTXMap {
+    static func +(a: BTXMap, b: BTXMap) -> BTXMap {
         return a.merging(b)
     }
 }
@@ -539,28 +539,28 @@ extension BTXMap {
     /// Return a map that contains all elements in `self` whose keys are in `keys`.
     ///
     /// - Complexity: O(`keys.count` * log(`count`))
-    public func including(_ keys: BTXSortedSet<Key>) -> BTXMap {
+    func including(_ keys: BTXSortedSet<Key>) -> BTXMap {
         return BTXMap(self.tree.intersection(sortedKeys: keys, by: .groupingMatches))
     }
 
     /// Return a map that contains all elements in `self` whose keys are in `keys`.
     ///
     /// - Complexity: O(*n* * log(`count`)) where *n* is the number of keys in `keys`.
-    public func including<S: Sequence>(_ keys: S) -> BTXMap where S.Element == Key {
+    func including<S: Sequence>(_ keys: S) -> BTXMap where S.Element == Key {
         return including(BTXSortedSet(keys))
     }
 
     /// Return a map that contains all elements in `self` whose keys are not in `keys`.
     ///
     /// - Complexity: O(`keys.count` * log(`count`))
-    public func excluding(_ keys: BTXSortedSet<Key>) -> BTXMap {
+    func excluding(_ keys: BTXSortedSet<Key>) -> BTXMap {
         return BTXMap(self.tree.subtracting(sortedKeys: keys, by: .groupingMatches))
     }
 
     /// Return a map that contains all elements in `self` whose keys are not in `keys`.
     ///
     /// - Complexity: O(*n* * log(`count`)) where *n* is the number of keys in `keys`.
-    public func excluding<S: Sequence>(_ keys: S) -> BTXMap where S.Element == Key {
+    func excluding<S: Sequence>(_ keys: S) -> BTXMap where S.Element == Key {
         return excluding(BTXSortedSet(keys))
     }
 }

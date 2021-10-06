@@ -2,10 +2,12 @@ import Foundation
 import UIKit
 
 extension Shell {
+    @available(*, deprecated)
     static func orderBook2() -> UIView & OrderBook2IO {
         return OrderBook2Impl()
     }
 }
+@available(*, deprecated)
 protocol OrderBook2IO {
     func process(_ x:Rendition)
     func dispatch(_ fx:@escaping(Action) -> Void)
@@ -78,7 +80,7 @@ private extension State {
 
 
 
-
+@available(*, deprecated)
 private final class OrderBook2Impl: UIView, OrderBook2IO, UICollectionViewDataSource {
     private let collectionView = UICollectionView(frame: .zero, collectionViewLayout: makeLayout())
     private let throttle = Throttle<State>(interval: 0.1)

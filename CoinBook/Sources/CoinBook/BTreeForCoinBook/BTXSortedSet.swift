@@ -19,7 +19,7 @@
 /// O(log(n)) time if the elements in the input sets aren't too interleaved.
 ///
 /// - SeeAlso: `SortedBag`
-public struct BTXSortedSet<Element: Comparable>: SetAlgebra {
+struct BTXSortedSet<Element: Comparable>: SetAlgebra {
     internal typealias Tree = BTree<Element, Void>
 
     /// The b-tree that serves as storage.
@@ -34,7 +34,7 @@ extension BTXSortedSet {
     //MARK: Initializers
 
     /// Create an empty set.
-    public init() {
+    init() {
         self.tree = Tree()
     }
 
@@ -42,7 +42,7 @@ extension BTXSortedSet {
     /// If the sequence contains duplicate items, only the last instance will be kept in the set.
     ///
     /// - Complexity: O(*n* * log(*n*)), where *n* is the number of items in the sequence.
-    public init<S: Sequence>(_ elements: S) where S.Element == Element {
+    init<S: Sequence>(_ elements: S) where S.Element == Element {
         self.init(Tree(sortedElements: elements.sorted().lazy.map { ($0, ()) }, dropDuplicates: true))
     }
 
@@ -50,13 +50,13 @@ extension BTXSortedSet {
     /// If the sequence contains duplicate items, only the last instance will be kept in the set.
     ///
     /// - Complexity: O(*n*), where *n* is the number of items in the sequence.
-    public init<S: Sequence>(sortedElements elements: S) where S.Element == Element {
+    init<S: Sequence>(sortedElements elements: S) where S.Element == Element {
         self.init(Tree(sortedElements: elements.lazy.map { ($0, ()) }, dropDuplicates: true))
     }
 
     /// Create a set with the specified list of items.
     /// If the array literal contains duplicate items, only the last instance will be kept.
-    public init(arrayLiteral elements: Element...) {
+    init(arrayLiteral elements: Element...) {
         self.init(elements)
     }
 }
@@ -64,31 +64,31 @@ extension BTXSortedSet {
 extension BTXSortedSet: BidirectionalCollection {
     //MARK: CollectionType
 
-    public typealias Index = BTreeIndex<Element, Void>
-    public typealias Iterator = BTreeKeyIterator<Element>
-    public typealias SubSequence = BTXSortedSet<Element>
+    typealias Index = BTreeIndex<Element, Void>
+    typealias Iterator = BTreeKeyIterator<Element>
+    typealias SubSequence = BTXSortedSet<Element>
 
     /// The index of the first element when non-empty. Otherwise the same as `endIndex`.
     ///
     /// - Complexity: O(log(`count`))
-    public var startIndex: Index {
+    var startIndex: Index {
         return tree.startIndex
     }
 
     /// The "past-the-end" element index; the successor of the last valid subscript argument.
     ///
     /// - Complexity: O(1)
-    public var endIndex: Index {
+    var endIndex: Index {
         return tree.endIndex
     }
 
     /// The number of elements in this set.
-    public var count: Int {
+    var count: Int {
         return tree.count
     }
 
     /// True iff this collection has no elements.
-    public var isEmpty: Bool {
+    var isEmpty: Bool {
         return count == 0
     }
 
@@ -96,7 +96,7 @@ extension BTXSortedSet: BidirectionalCollection {
     ///
     /// - Requires: `index` originated from an unmutated copy of this set.
     /// - Complexity: O(1)
-    public subscript(index: Index) -> Element {
+    subscript(index: Index) -> Element {
         return tree[index].0
     }
 
@@ -104,12 +104,12 @@ extension BTXSortedSet: BidirectionalCollection {
     ///
     /// - Requires: The indices in `range` originated from an unmutated copy of this set.
     /// - Complexity: O(log(`count`))
-    public subscript(range: Range<Index>) -> BTXSortedSet<Element> {
+    subscript(range: Range<Index>) -> BTXSortedSet<Element> {
         return BTXSortedSet(tree[range])
     }
 
     /// Return an iterator over all elements in this map, in ascending key order.
-    public func makeIterator() -> Iterator {
+    func makeIterator() -> Iterator {
         return Iterator(tree.makeIterator())
     }
 
@@ -117,7 +117,7 @@ extension BTXSortedSet: BidirectionalCollection {
     ///
     /// - Requires: `index` is a valid index of this set and it is not equal to `endIndex`.
     /// - Complexity: Amortized O(1).
-    public func index(after index: Index) -> Index {
+    func index(after index: Index) -> Index {
         return tree.index(after: index)
     }
 
@@ -125,7 +125,7 @@ extension BTXSortedSet: BidirectionalCollection {
     ///
     /// - Requires: `index` is a valid index of this set and it is not equal to `endIndex`.
     /// - Complexity: Amortized O(1).
-    public func formIndex(after index: inout Index) {
+    func formIndex(after index: inout Index) {
         tree.formIndex(after: &index)
     }
 
@@ -133,7 +133,7 @@ extension BTXSortedSet: BidirectionalCollection {
     ///
     /// - Requires: `index` is a valid index of this set and it is not equal to `startIndex`.
     /// - Complexity: Amortized O(1).
-    public func index(before index: Index) -> Index {
+    func index(before index: Index) -> Index {
         return tree.index(before: index)
     }
 
@@ -141,7 +141,7 @@ extension BTXSortedSet: BidirectionalCollection {
     ///
     /// - Requires: `index` is a valid index of this set and it is not equal to `startIndex`.
     /// - Complexity: Amortized O(1).
-    public func formIndex(before index: inout Index) {
+    func formIndex(before index: inout Index) {
         tree.formIndex(before: &index)
     }
 
@@ -151,7 +151,7 @@ extension BTXSortedSet: BidirectionalCollection {
     ///              If `n` is positive, it must not exceed the distance from `index` to `endIndex`.
     ///              If `n` is negative, it must not be less than the distance from `index` to `startIndex`.
     /// - Complexity: O(log(*count*)) where *count* is the number of elements in the set.
-    public func index(_ i: Index, offsetBy n: Int) -> Index {
+    func index(_ i: Index, offsetBy n: Int) -> Index {
         return tree.index(i, offsetBy: n)
     }
 
@@ -161,7 +161,7 @@ extension BTXSortedSet: BidirectionalCollection {
     ///              If `n` is positive, it must not exceed the distance from `index` to `endIndex`.
     ///              If `n` is negative, it must not be less than the distance from `index` to `startIndex`.
     /// - Complexity: O(log(*count*)) where *count* is the number of elements in the set.
-    public func formIndex(_ i: inout Index, offsetBy n: Int) {
+    func formIndex(_ i: inout Index, offsetBy n: Int) {
         tree.formIndex(&i, offsetBy: n)
     }
 
@@ -169,7 +169,7 @@ extension BTXSortedSet: BidirectionalCollection {
     ///
     /// - Requires: `index` and `limit` must be valid indices in this set. The operation must not advance the index beyond `endIndex` or before `startIndex`.
     /// - Complexity: O(log(*count*)) where *count* is the number of elements in the set.
-    public func index(_ i: Index, offsetBy n: Int, limitedBy limit: Index) -> Index? {
+    func index(_ i: Index, offsetBy n: Int, limitedBy limit: Index) -> Index? {
         return tree.index(i, offsetBy: n, limitedBy: limit)
     }
 
@@ -178,7 +178,7 @@ extension BTXSortedSet: BidirectionalCollection {
     /// - Requires: `index` and `limit` must be valid indices in this set. The operation must not advance the index beyond `endIndex` or before `startIndex`.
     /// - Complexity: O(log(*count*)) where *count* is the number of elements in the set.
     @discardableResult
-    public func formIndex(_ i: inout Index, offsetBy n: Int, limitedBy limit: Index) -> Bool {
+    func formIndex(_ i: inout Index, offsetBy n: Int, limitedBy limit: Index) -> Bool {
         return tree.formIndex(&i, offsetBy: n, limitedBy: limit)
     }
 
@@ -186,7 +186,7 @@ extension BTXSortedSet: BidirectionalCollection {
     ///
     /// - Requires: `start` and `end` must be valid indices in this set.
     /// - Complexity: O(1)
-    public func distance(from start: Index, to end: Index) -> Int {
+    func distance(from start: Index, to end: Index) -> Int {
         return tree.distance(from: start, to: end)
     }
 }
@@ -197,14 +197,14 @@ extension BTXSortedSet {
     /// Return the offset of `member`, if it is an element of this set. Otherwise, return `nil`.
     ///
     /// - Complexity: O(log(`count`))
-    public func offset(of member: Element) -> Int? {
+    func offset(of member: Element) -> Int? {
         return tree.offset(forKey: member)
     }
 
     /// Returns the offset of the element at `index`.
     ///
     /// - Complexity: O(log(`count`))
-    public func index(ofOffset offset: Int) -> Index {
+    func index(ofOffset offset: Int) -> Index {
         return tree.index(ofOffset: offset)
     }
 
@@ -212,21 +212,21 @@ extension BTXSortedSet {
     ///
     /// - Requires: `offset >= 0 && offset < count`
     /// - Complexity: O(log(`count`))
-    public func offset(of index: Index) -> Int {
+    func offset(of index: Index) -> Int {
         return tree.offset(of: index)
     }
     
     /// Returns the element at `offset` from the start of the set.
     ///
     /// - Complexity: O(log(`count`))
-    public subscript(offset: Int) -> Element {
+    subscript(offset: Int) -> Element {
         return tree.element(atOffset: offset).0
     }
 
     /// Returns the subset containing elements in the specified range of offsets from the start of the set.
     ///
     /// - Complexity: O(log(`count`))
-    public subscript(offsetRange: Range<Int>) -> BTXSortedSet<Element> {
+    subscript(offsetRange: Range<Int>) -> BTXSortedSet<Element> {
         return BTXSortedSet(tree.subtree(withOffsets: offsetRange))
     }
 }
@@ -235,27 +235,27 @@ extension BTXSortedSet {
     //MARK: Algorithms
 
     /// Call `body` on each element in `self` in ascending order.
-    public func forEach(_ body: (Element) throws -> Void) rethrows {
+    func forEach(_ body: (Element) throws -> Void) rethrows {
         return try tree.forEach { try body($0.0) }
     }
 
     /// Return an `Array` containing the results of mapping transform over `self`.
-    public func map<T>(_ transform: (Element) throws -> T) rethrows -> [T] {
+    func map<T>(_ transform: (Element) throws -> T) rethrows -> [T] {
         return try tree.map { try transform($0.0) }
     }
 
     /// Return an `Array` containing the concatenated results of mapping `transform` over `self`.
-    public func flatMap<S : Sequence>(_ transform: (Element) throws -> S) rethrows -> [S.Element] {
+    func flatMap<S : Sequence>(_ transform: (Element) throws -> S) rethrows -> [S.Element] {
         return try tree.flatMap { try transform($0.0) }
     }
 
     /// Return an `Array` containing the non-`nil` results of mapping `transform` over `self`.
-    public func flatMap<T>(_ transform: (Element) throws -> T?) rethrows -> [T] {
-        return try tree.flatMap { try transform($0.0) }
+    func flatMap<T>(_ transform: (Element) throws -> T?) rethrows -> [T] {
+        return try tree.compactMap { try transform($0.0) }
     }
 
     /// Return an `Array` containing the elements of `self`, in ascending order, that satisfy the predicate `includeElement`.
-    public func filter(_ includeElement: (Element) throws -> Bool) rethrows -> [Element] {
+    func filter(_ includeElement: (Element) throws -> Bool) rethrows -> [Element] {
         var result: [Element] = []
         try tree.forEach { e -> () in
             if try includeElement(e.0) {
@@ -268,7 +268,7 @@ extension BTXSortedSet {
     /// Return the result of repeatedly calling `combine` with an accumulated value initialized to `initial`
     /// and each element of `self`, in turn.
     /// I.e., return `combine(combine(...combine(combine(initial, self[0]), self[1]),...self[count-2]), self[count-1])`.
-    public func reduce<T>(_ initialResult: T, _ nextPartialResult: (T, Element) throws -> T) rethrows -> T {
+    func reduce<T>(_ initialResult: T, _ nextPartialResult: (T, Element) throws -> T) rethrows -> T {
         return try tree.reduce(initialResult) { try nextPartialResult($0, $1.0) }
     }
 }
@@ -279,28 +279,28 @@ extension BTXSortedSet {
     /// Return the smallest element in the set, or `nil` if the set is empty.
     ///
     /// - Complexity: O(log(`count`))
-    public var first: Element? { return tree.first?.0 }
+    var first: Element? { return tree.first?.0 }
 
     /// Return the largest element in the set, or `nil` if the set is empty.
     ///
     /// - Complexity: O(log(`count`))
-    public var last: Element? { return tree.last?.0 }
+    var last: Element? { return tree.last?.0 }
 
     /// Return the smallest element in the set, or `nil` if the set is empty.
     ///
     /// - Complexity: O(log(`count`))
-    public func min() -> Element? { return first }
+    func min() -> Element? { return first }
 
     /// Return the largest element in the set, or `nil` if the set is empty.
     ///
     /// - Complexity: O(log(`count`))
-    public func max() -> Element? { return last }
+    func max() -> Element? { return last }
 
     /// Return a copy of this set with the smallest element removed.
     /// If this set is empty, the result is an empty set.
     ///
     /// - Complexity: O(log(`count`))
-    public func dropFirst() -> BTXSortedSet {
+    func dropFirst() -> BTXSortedSet {
         return BTXSortedSet(tree.dropFirst())
     }
 
@@ -308,7 +308,7 @@ extension BTXSortedSet {
     /// If `n` exceeds the number of elements in the set, the result is an empty set.
     ///
     /// - Complexity: O(log(`count`))
-    public func dropFirst(_ n: Int) -> BTXSortedSet {
+    func dropFirst(_ n: Int) -> BTXSortedSet {
         return BTXSortedSet(tree.dropFirst(n))
     }
 
@@ -316,7 +316,7 @@ extension BTXSortedSet {
     /// If this set is empty, the result is an empty set.
     ///
     /// - Complexity: O(log(`count`))
-    public func dropLast() -> BTXSortedSet {
+    func dropLast() -> BTXSortedSet {
         return BTXSortedSet(tree.dropLast())
     }
 
@@ -324,7 +324,7 @@ extension BTXSortedSet {
     /// If `n` exceeds the number of elements in the set, the result is an empty set.
     ///
     /// - Complexity: O(log(`count`))
-    public func dropLast(_ n: Int) -> BTXSortedSet {
+    func dropLast(_ n: Int) -> BTXSortedSet {
         return BTXSortedSet(tree.dropLast(n))
     }
 
@@ -333,14 +333,14 @@ extension BTXSortedSet {
     /// If `maxLength` exceeds the number of elements, the result contains all the elements of `self`.
     ///
     /// - Complexity: O(log(`count`))
-    public func prefix(_  maxLength: Int) -> BTXSortedSet {
+    func prefix(_  maxLength: Int) -> BTXSortedSet {
         return BTXSortedSet(tree.prefix(maxLength))
     }
 
     /// Returns a subset containing all members of this set at or before the specified index.
     ///
     /// - Complexity: O(log(`count`))
-    public func prefix(through index: Index) -> BTXSortedSet {
+    func prefix(through index: Index) -> BTXSortedSet {
         return BTXSortedSet(tree.prefix(through: index))
     }
 
@@ -348,14 +348,14 @@ extension BTXSortedSet {
     /// (which may or may not be a member of this set).
     ///
     /// - Complexity: O(log(`count`))
-    public func prefix(through element: Element) -> BTXSortedSet {
+    func prefix(through element: Element) -> BTXSortedSet {
         return BTXSortedSet(tree.prefix(through: element))
     }
 
     /// Returns a subset containing all members of this set before the specified index.
     ///
     /// - Complexity: O(log(`count`))
-    public func prefix(upTo end: Index) -> BTXSortedSet {
+    func prefix(upTo end: Index) -> BTXSortedSet {
         return BTXSortedSet(tree.prefix(upTo: end))
     }
 
@@ -363,7 +363,7 @@ extension BTXSortedSet {
     /// (which may or may not be a member of this set).
     ///
     /// - Complexity: O(log(`count`))
-    public func prefix(upTo end: Element) -> BTXSortedSet {
+    func prefix(upTo end: Element) -> BTXSortedSet {
         return BTXSortedSet(tree.prefix(upTo: end))
     }
 
@@ -372,14 +372,14 @@ extension BTXSortedSet {
     /// If `maxLength` exceeds `self.count`, the result contains all the elements of `self`.
     ///
     /// - Complexity: O(log(`count`))
-    public func suffix(_ maxLength: Int) -> BTXSortedSet {
+    func suffix(_ maxLength: Int) -> BTXSortedSet {
         return BTXSortedSet(tree.suffix(maxLength))
     }
 
     /// Returns a subset containing all members of this set at or after the specified index.
     ///
     /// - Complexity: O(log(`count`))
-    public func suffix(from index: Index) -> BTXSortedSet {
+    func suffix(from index: Index) -> BTXSortedSet {
         return BTXSortedSet(tree.suffix(from: index))
     }
 
@@ -387,7 +387,7 @@ extension BTXSortedSet {
     /// (which may or may not be a member of this set).
     ///
     /// - Complexity: O(log(`count`))
-    public func suffix(from element: Element) -> BTXSortedSet {
+    func suffix(from element: Element) -> BTXSortedSet {
         return BTXSortedSet(tree.suffix(from: element))
     }
 }
@@ -396,13 +396,13 @@ extension BTXSortedSet: CustomStringConvertible, CustomDebugStringConvertible {
     //MARK: Conversion to string
 
     /// A textual representation of this set.
-    public var description: String {
+    var description: String {
         let contents = self.map { String(reflecting: $0) }
         return "[" + contents.joined(separator: ", ") + "]"
     }
 
     /// A textual representation of this set, suitable for debugging.
-    public var debugDescription: String {
+    var debugDescription: String {
         return "SortedSet(" + description + ")"
     }
 }
@@ -413,14 +413,14 @@ extension BTXSortedSet {
     /// Return true if the set contains `element`.
     ///
     /// - Complexity: O(log(`count`))
-    public func contains(_ element: Element) -> Bool {
+    func contains(_ element: Element) -> Bool {
         return tree.value(of: element) != nil
     }
 
     /// Returns the index of a given member, or `nil` if the member is not present in the set.
     ///
     /// - Complexity: O(log(`count`))
-    public func index(of member: Element) -> BTreeIndex<Element, Void>? {
+    func index(of member: Element) -> BTreeIndex<Element, Void>? {
         return tree.index(forKey: member)
     }
 
@@ -429,7 +429,7 @@ extension BTXSortedSet {
     /// This function never returns `endIndex`. (If it returns non-nil, the returned index can be used to subscript the set.)
     ///
     /// - Complexity: O(log(`count`))
-    public func indexOfFirstElement(after element: Element) -> BTreeIndex<Element, Void>? {
+    func indexOfFirstElement(after element: Element) -> BTreeIndex<Element, Void>? {
         let index = tree.index(forInserting: element, at: .last)
         if tree.offset(of: index) == tree.count { return nil }
         return index
@@ -440,7 +440,7 @@ extension BTXSortedSet {
     /// This function never returns `endIndex`. (If it returns non-nil, the returned index can be used to subscript the set.)
     ///
     /// - Complexity: O(log(`count`))
-    public func indexOfFirstElement(notBefore element: Element) -> BTreeIndex<Element, Void>? {
+    func indexOfFirstElement(notBefore element: Element) -> BTreeIndex<Element, Void>? {
         let index = tree.index(forInserting: element, at: .first)
         if tree.offset(of: index) == tree.count { return nil }
         return index
@@ -451,7 +451,7 @@ extension BTXSortedSet {
     /// This function never returns `endIndex`. (If it returns non-nil, the returned index can be used to subscript the set.)
     ///
     /// - Complexity: O(log(`count`))
-    public func indexOfLastElement(before element: Element) -> BTreeIndex<Element, Void>? {
+    func indexOfLastElement(before element: Element) -> BTreeIndex<Element, Void>? {
         var index = tree.index(forInserting: element, at: .first)
         if tree.offset(of: index) == 0 { return nil }
         tree.formIndex(before: &index)
@@ -463,7 +463,7 @@ extension BTXSortedSet {
     /// This function never returns `endIndex`. (If it returns non-nil, the returned index can be used to subscript the set.)
     ///
     /// - Complexity: O(log(`count`))
-    public func indexOfLastElement(notAfter element: Element) -> BTreeIndex<Element, Void>? {
+    func indexOfLastElement(notAfter element: Element) -> BTreeIndex<Element, Void>? {
         var index = tree.index(forInserting: element, at: .last)
         if tree.offset(of: index) == 0 { return nil }
         tree.formIndex(before: &index)
@@ -480,7 +480,7 @@ extension BTXSortedSet {
     /// two sets are divergent mutations originating from the same value.
     ///
     /// - Complexity:  O(`count`)
-    public func elementsEqual(_ other: BTXSortedSet<Element>) -> Bool {
+    func elementsEqual(_ other: BTXSortedSet<Element>) -> Bool {
         return self.tree.elementsEqual(other.tree, by: { $0.0 == $1.0 })
     }
 
@@ -490,7 +490,7 @@ extension BTXSortedSet {
     /// two sets are divergent mutations originating from the same value.
     ///
     /// - Complexity: O(`count`)
-    public static func ==(a: BTXSortedSet<Element>, b: BTXSortedSet<Element>) -> Bool {
+    static func ==(a: BTXSortedSet<Element>, b: BTXSortedSet<Element>) -> Bool {
         return a.elementsEqual(b)
     }
 
@@ -503,7 +503,7 @@ extension BTXSortedSet {
     /// - Complexity:
     ///    - O(min(`self.count`, `other.count`)) in general.
     ///    - O(log(`self.count` + `other.count`)) if there are only a constant amount of interleaving element runs.
-    public func isDisjoint(with other: BTXSortedSet<Element>) -> Bool {
+    func isDisjoint(with other: BTXSortedSet<Element>) -> Bool {
         return tree.isDisjoint(with: other.tree)
     }
 
@@ -516,7 +516,7 @@ extension BTXSortedSet {
     /// - Complexity:
     ///    - O(min(`self.count`, `other.count`)) in general.
     ///    - O(log(`self.count` + `other.count`)) if there are only a constant amount of interleaving element runs.
-    public func isSubset(of other: BTXSortedSet<Element>) -> Bool {
+    func isSubset(of other: BTXSortedSet<Element>) -> Bool {
         return tree.isSubset(of: other.tree, by: .groupingMatches)
     }
 
@@ -529,7 +529,7 @@ extension BTXSortedSet {
     /// - Complexity:
     ///    - O(min(`self.count`, `other.count`)) in general.
     ///    - O(log(`self.count` + `other.count`)) if there are only a constant amount of interleaving element runs.
-    public func isStrictSubset(of other: BTXSortedSet<Element>) -> Bool {
+    func isStrictSubset(of other: BTXSortedSet<Element>) -> Bool {
         return tree.isStrictSubset(of: other.tree, by: .groupingMatches)
     }
 
@@ -542,7 +542,7 @@ extension BTXSortedSet {
     /// - Complexity:
     ///    - O(min(`self.count`, `other.count`)) in general.
     ///    - O(log(`self.count` + `other.count`)) if there are only a constant amount of interleaving element runs.
-    public func isSuperset(of other: BTXSortedSet<Element>) -> Bool {
+    func isSuperset(of other: BTXSortedSet<Element>) -> Bool {
         return tree.isSuperset(of: other.tree, by: .groupingMatches)
     }
 
@@ -555,7 +555,7 @@ extension BTXSortedSet {
     /// - Complexity:
     ///    - O(min(`self.count`, `other.count`)) in general.
     ///    - O(log(`self.count` + `other.count`)) if there are only a constant amount of interleaving element runs.
-    public func isStrictSuperset(of other: BTXSortedSet<Element>) -> Bool {
+    func isStrictSuperset(of other: BTXSortedSet<Element>) -> Bool {
         return tree.isStrictSuperset(of: other.tree, by: .groupingMatches)
     }
 }
@@ -571,7 +571,7 @@ extension BTXSortedSet {
     ///    from `newMember` by identity comparison or some other means.
     /// - Complexity: O(log(`count`))
     @discardableResult
-    public mutating func insert(_ newMember: Element) -> (inserted: Bool, memberAfterInsert: Element) {
+    mutating func insert(_ newMember: Element) -> (inserted: Bool, memberAfterInsert: Element) {
         guard let old = tree.insertOrFind((newMember, ())) else {
             return (true, newMember)
         }
@@ -588,7 +588,7 @@ extension BTXSortedSet {
     ///   In some cases, the returned element may be distinguishable from `newMember` by identity
     ///   comparison or some other means.
     @discardableResult
-    public mutating func update(with newMember: Element) -> Element? {
+    mutating func update(with newMember: Element) -> Element? {
         return tree.insertOrReplace((newMember, ()))?.0
     }
 }
@@ -600,7 +600,7 @@ extension BTXSortedSet {
     ///
     /// - Complexity: O(log(`count`))
     @discardableResult
-    public mutating func remove(_ element: Element) -> Element? {
+    mutating func remove(_ element: Element) -> Element? {
         return tree.remove(element)?.0
     }
 
@@ -608,7 +608,7 @@ extension BTXSortedSet {
     ///
     /// - Complexity: O(log(`count`))
     @discardableResult
-    public mutating func remove(at index: Index) -> Element {
+    mutating func remove(at index: Index) -> Element {
         return tree.remove(at: index).0
     }
 
@@ -616,7 +616,7 @@ extension BTXSortedSet {
     ///
     /// - Complexity: O(log(`count`))
     @discardableResult
-    public mutating func remove(atOffset offset: Int) -> Element {
+    mutating func remove(atOffset offset: Int) -> Element {
         return tree.remove(atOffset: offset).0
     }
 
@@ -640,7 +640,7 @@ extension BTXSortedSet {
     ///
     /// - Complexity: O(log(`count`))
     @discardableResult
-    public mutating func popFirst() -> Element? {
+    mutating func popFirst() -> Element? {
         return tree.popFirst()?.0
     }
 
@@ -663,12 +663,12 @@ extension BTXSortedSet {
     ///
     /// - Complexity: O(log(`count`))
     @discardableResult
-    public mutating func popLast() -> Element? {
+    mutating func popLast() -> Element? {
         return tree.popLast()?.0
     }
 
     /// Remove all members from this set.
-    public mutating func removeAll() {
+    mutating func removeAll() {
         tree.removeAll()
     }
 }
@@ -681,7 +681,7 @@ extension BTXSortedSet {
     /// `SortedSet` already keeps its elements sorted, so this is equivalent to `Array(self)`.
     ///
     /// - Complexity: O(`count`)
-    public func sorted() -> [Element] {
+    func sorted() -> [Element] {
         // The set is already sorted.
         return Array(self)
     }
@@ -699,7 +699,7 @@ extension BTXSortedSet {
     /// - Complexity:
     ///    - O(min(`self.count`, `other.count`)) in general.
     ///    - O(log(`self.count` + `other.count`)) if there are only a constant amount of interleaving element runs.
-    public func union(_ other: BTXSortedSet<Element>) -> BTXSortedSet<Element> {
+    func union(_ other: BTXSortedSet<Element>) -> BTXSortedSet<Element> {
         return BTXSortedSet(self.tree.union(other.tree, by: .groupingMatches))
     }
 
@@ -712,7 +712,7 @@ extension BTXSortedSet {
     /// - Complexity:
     ///    - O(min(`self.count`, `other.count`)) in general.
     ///    - O(log(`self.count` + `other.count`)) if there are only a constant amount of interleaving element runs.
-    public func intersection(_ other: BTXSortedSet<Element>) -> BTXSortedSet<Element> {
+    func intersection(_ other: BTXSortedSet<Element>) -> BTXSortedSet<Element> {
         return BTXSortedSet(self.tree.intersection(other.tree, by: .groupingMatches))
     }
 
@@ -725,7 +725,7 @@ extension BTXSortedSet {
     /// - Complexity:
     ///    - O(min(`self.count`, `other.count`)) in general.
     ///    - O(log(`self.count` + `other.count`)) if there are only a constant amount of interleaving element runs.
-    public func symmetricDifference(_ other: BTXSortedSet<Element>) -> BTXSortedSet<Element> {
+    func symmetricDifference(_ other: BTXSortedSet<Element>) -> BTXSortedSet<Element> {
         return BTXSortedSet(self.tree.symmetricDifference(other.tree, by: .groupingMatches))
     }
 
@@ -738,7 +738,7 @@ extension BTXSortedSet {
     /// - Complexity:
     ///    - O(min(`self.count`, `other.count`)) in general.
     ///    - O(log(`self.count` + `other.count`)) if there are only a constant amount of interleaving element runs.
-    public mutating func formUnion(_ other: BTXSortedSet<Element>) {
+    mutating func formUnion(_ other: BTXSortedSet<Element>) {
         self = self.union(other)
     }
 
@@ -751,7 +751,7 @@ extension BTXSortedSet {
     /// - Complexity:
     ///    - O(min(`self.count`, `other.count`)) in general.
     ///    - O(log(`self.count` + `other.count`)) if there are only a constant amount of interleaving element runs.
-    public mutating func formIntersection(_ other: BTXSortedSet<Element>) {
+    mutating func formIntersection(_ other: BTXSortedSet<Element>) {
         self = other.intersection(self)
     }
 
@@ -764,7 +764,7 @@ extension BTXSortedSet {
     /// - Complexity:
     ///    - O(min(`self.count`, `other.count`)) in general.
     ///    - O(log(`self.count` + `other.count`)) if there are only a constant amount of interleaving element runs.
-    public mutating func formSymmetricDifference(_ other: BTXSortedSet<Element>) {
+    mutating func formSymmetricDifference(_ other: BTXSortedSet<Element>) {
         self = self.symmetricDifference(other)
     }
 
@@ -777,7 +777,7 @@ extension BTXSortedSet {
     /// - Complexity:
     ///    - O(min(`self.count`, `other.count`)) in general.
     ///    - O(log(`self.count` + `other.count`)) if there are only a constant amount of interleaving element runs.
-    public func subtracting(_ other: BTXSortedSet) -> BTXSortedSet {
+    func subtracting(_ other: BTXSortedSet) -> BTXSortedSet {
         return BTXSortedSet(self.tree.subtracting(other.tree, by: .groupingMatches))
     }
 
@@ -790,7 +790,7 @@ extension BTXSortedSet {
     /// - Complexity:
     ///    - O(min(`self.count`, `other.count`)) in general.
     ///    - O(log(`self.count` + `other.count`)) if there are only a constant amount of interleaving element runs.
-    public mutating func subtract(_ other: BTXSortedSet) {
+    mutating func subtract(_ other: BTXSortedSet) {
         self = self.subtracting(other)
     }
 }
@@ -801,7 +801,7 @@ extension BTXSortedSet {
     /// Return the count of elements in this set that are in `range`.
     ///
     /// - Complexity: O(log(`self.count`))
-    public func count(elementsIn range: Range<Element>) -> Int {
+    func count(elementsIn range: Range<Element>) -> Int {
         var path = BTreeStrongPath(root: tree.root, key: range.lowerBound, choosing: .first)
         let lowerOffset = path.offset
         path.move(to: range.upperBound, choosing: .first)
@@ -811,7 +811,7 @@ extension BTXSortedSet {
     /// Return the count of elements in this set that are in `range`.
     ///
     /// - Complexity: O(log(`self.count`))
-    public func count(elementsIn range: ClosedRange<Element>) -> Int {
+    func count(elementsIn range: ClosedRange<Element>) -> Int {
         var path = BTreeStrongPath(root: tree.root, key: range.lowerBound, choosing: .first)
         let lowerOffset = path.offset
         path.move(to: range.upperBound, choosing: .after)
@@ -821,35 +821,35 @@ extension BTXSortedSet {
     /// Return a set consisting of all members in `self` that are also in `range`.
     ///
     /// - Complexity: O(log(`self.count`))
-    public func intersection(elementsIn range: Range<Element>) -> BTXSortedSet<Element> {
+    func intersection(elementsIn range: Range<Element>) -> BTXSortedSet<Element> {
         return self.suffix(from: range.lowerBound).prefix(upTo: range.upperBound)
     }
 
     /// Return a set consisting of all members in `self` that are also in `range`.
     ///
     /// - Complexity: O(log(`self.count`))
-    public func intersection(elementsIn range: ClosedRange<Element>) -> BTXSortedSet<Element> {
+    func intersection(elementsIn range: ClosedRange<Element>) -> BTXSortedSet<Element> {
         return self.suffix(from: range.lowerBound).prefix(through: range.upperBound)
     }
 
     /// Remove all members from this set that are not included in `range`.
     ///
     /// - Complexity: O(log(`self.count`))
-    public mutating func formIntersection(elementsIn range: Range<Element>) {
+    mutating func formIntersection(elementsIn range: Range<Element>) {
         self = self.intersection(elementsIn: range)
     }
 
     /// Remove all members from this set that are not included in `range`.
     ///
     /// - Complexity: O(log(`self.count`))
-    public mutating func formIntersection(elementsIn range: ClosedRange<Element>) {
+    mutating func formIntersection(elementsIn range: ClosedRange<Element>) {
         self = self.intersection(elementsIn: range)
     }
 
     /// Remove all elements in `range` from this set.
     ///
     /// - Complexity: O(log(`self.count`))
-    public mutating func subtract(elementsIn range: Range<Element>) {
+    mutating func subtract(elementsIn range: Range<Element>) {
         tree.withCursor(onKey: range.upperBound, choosing: .first) { cursor in
             let upperOffset = cursor.offset
             cursor.move(to: range.lowerBound, choosing: .first)
@@ -860,7 +860,7 @@ extension BTXSortedSet {
     /// Remove all elements in `range` from this set.
     ///
     /// - Complexity: O(log(`self.count`))
-    public mutating func subtract(elementsIn range: ClosedRange<Element>) {
+    mutating func subtract(elementsIn range: ClosedRange<Element>) {
         tree.withCursor(onKey: range.upperBound, choosing: .after) { cursor in
             let upperOffset = cursor.offset
             cursor.move(to: range.lowerBound, choosing: .first)
@@ -871,7 +871,7 @@ extension BTXSortedSet {
     /// Return a set containing those members of this set that aren't also included in `range`.
     ///
     /// - Complexity: O(log(`self.count`))
-    public mutating func subtracting(elementsIn range: Range<Element>) -> BTXSortedSet<Element> {
+    mutating func subtracting(elementsIn range: Range<Element>) -> BTXSortedSet<Element> {
         var copy = self
         copy.subtract(elementsIn: range)
         return copy
@@ -880,7 +880,7 @@ extension BTXSortedSet {
     /// Return a set containing those members of this set that aren't also included in `range`.
     ///
     /// - Complexity: O(log(`self.count`))
-    public mutating func subtracting(elementsIn range: ClosedRange<Element>) -> BTXSortedSet<Element> {
+    mutating func subtracting(elementsIn range: ClosedRange<Element>) -> BTXSortedSet<Element> {
         var copy = self
         copy.subtract(elementsIn: range)
         return copy
@@ -895,7 +895,7 @@ extension BTXSortedSet where Element: Strideable {
     /// For a negative `delta`, this shifts elements to the left, removing any elements in the range `start + delta ..< start` that were previously in the set.
     ///
     /// - Complexity: O(`self.count`). The elements are modified in place.
-    public mutating func shift(startingAt start: Element, by delta: Element.Stride) {
+    mutating func shift(startingAt start: Element, by delta: Element.Stride) {
         guard delta != 0 else { return }
         tree.withCursor(onKey: start) { cursor in
             if delta < 0 {

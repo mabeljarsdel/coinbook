@@ -95,7 +95,39 @@ extension UILabel {
 }
 
 
-
+extension UIView {
+    func setFrameIfDifferent(_ f:CGRect) {
+        guard f != frame else { return }
+        frame = f
+    }
+    func autofillSuperview() {
+        translatesAutoresizingMaskIntoConstraints = false
+        fillSuperviewHorizontally()
+        fillSuperviewVertically()
+    }
+    func fillSuperview() {
+        fillSuperviewHorizontally()
+        fillSuperviewVertically()
+    }
+    func fillSuperviewHorizontally() {
+        assert(translatesAutoresizingMaskIntoConstraints == false)
+        assert(superview != nil)
+        guard let v = superview else { return }
+        NSLayoutConstraint.activate([
+            v.leadingAnchor.constraint(equalTo: leadingAnchor),
+            v.trailingAnchor.constraint(equalTo: trailingAnchor),
+        ])
+    }
+    func fillSuperviewVertically() {
+        assert(translatesAutoresizingMaskIntoConstraints == false)
+        assert(superview != nil)
+        guard let v = superview else { return }
+        NSLayoutConstraint.activate([
+            v.topAnchor.constraint(equalTo: topAnchor),
+            v.bottomAnchor.constraint(equalTo: bottomAnchor),
+        ])
+    }
+}
 
 
 
@@ -106,7 +138,8 @@ extension UILabel {
 
 
 extension Array {
-    func elementIfExists(at i:Int) -> Element? {
+    func elementIfExists(at i:Int?) -> Element? {
+        guard let i = i else { return nil }
         guard i < count else { return nil }
         return self[i]
     }

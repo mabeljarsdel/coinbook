@@ -7,13 +7,15 @@ extension Shell {
     }
 }
 protocol Home2IO {
-    func process(_ x:Rendition)
-    func dispatch(_ fx:@escaping(Action) -> Void)
+    typealias Command = Rendition
+    typealias Report = Action
+    func process(_ x:Command)
+    func dispatch(_ fx:@escaping(Report) -> Void)
 }
 
 private final class Home2Impl: UIViewController, Home2IO {
-    private let tabbar = HomeTabBarView()
-    private let orderBook = Shell.orderBook2()
+    private let tabbar = HomeTab()
+    private let orderBook = Shell.orderBook3()
     private let recentTradeList = Shell.recentTradeList2()
     private var broadcast = noop as (Action) -> Void
     private var state = State()
@@ -49,13 +51,17 @@ private final class Home2Impl: UIViewController, Home2IO {
             orderBook.isHidden = false
             recentTradeList.isHidden = true
             view.bringSubviewToFront(orderBook)
+            orderBook.process(state)
         case .navigate(.recentTrades):
             orderBook.isHidden = true
             recentTradeList.isHidden = false
             view.bringSubviewToFront(recentTradeList)
-        case .state:
-            orderBook.process(x)
-            recentTradeList.process(x)
+            recentTradeList.process(.setOrigin(Date()))
+            recentTradeList.process(.renderState(state))
+        case let .state(x):
+            state = x
+            if !orderBook.isHidden { orderBook.process(state) }
+            if !recentTradeList.isHidden { recentTradeList.process(.renderState(state)) }
         default:
             break
         }

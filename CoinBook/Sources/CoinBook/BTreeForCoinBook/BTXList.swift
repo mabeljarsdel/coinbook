@@ -25,7 +25,7 @@
 ///   (less than 5 levels for a billion elements), so with practical element counts, offset lookup typically 
 ///   behaves more like `O(1)` than `O(log(count))`.
 ///
-public struct BTXList<Element> {
+struct BTXList<Element> {
     internal typealias Tree = BTree<EmptyKey, Element>
 
     /// The B-tree that serves as storage.
@@ -36,7 +36,7 @@ public struct BTXList<Element> {
     }
     
     /// Initialize an empty list.
-    public init() {
+    init() {
         self.tree = Tree()
     }
 }
@@ -47,7 +47,7 @@ extension BTXList {
     /// Initialize a new list from the given elements.
     ///
     /// - Complexity: O(*n*) where *n* is the number of elements in the sequence.
-    public init<S: Sequence>(_ elements: S) where S.Element == Element {
+    init<S: Sequence>(_ elements: S) where S.Element == Element {
         self.init(Tree(sortedElements: elements.lazy.map { (EmptyKey(), $0) }))
     }
 }
@@ -56,7 +56,7 @@ extension BTXList: ExpressibleByArrayLiteral {
     //MARK: Conversion from an array literal
 
     /// Initialize a new list from the given elements.
-    public init(arrayLiteral elements: Element...) {
+    init(arrayLiteral elements: Element...) {
         self.init(elements)
     }
 }
@@ -65,7 +65,7 @@ extension BTXList: CustomStringConvertible {
     //MARK: String conversion
 
     /// A textual representation of this list.
-    public var description: String {
+    var description: String {
         let contents = self.map { element in String(reflecting: element) }
         return "[" + contents.joined(separator: ", ") + "]"
     }
@@ -73,7 +73,7 @@ extension BTXList: CustomStringConvertible {
 
 extension BTXList: CustomDebugStringConvertible {
     /// A textual representation of this list, suitable for debugging.
-    public var debugDescription: String {
+    var debugDescription: String {
         let contents = self.map { element in String(reflecting: element) }
         return "[" + contents.joined(separator: ", ") + "]"
     }
@@ -82,35 +82,35 @@ extension BTXList: CustomDebugStringConvertible {
 extension BTXList: MutableCollection, RandomAccessCollection {
     //MARK: CollectionType
     
-    public typealias Index = Int
-    public typealias Indices = CountableRange<Int>
-    public typealias Iterator = BTreeValueIterator<Element>
-    public typealias SubSequence = BTXList<Element>
+    typealias Index = Int
+    typealias Indices = CountableRange<Int>
+    typealias Iterator = BTreeValueIterator<Element>
+    typealias SubSequence = BTXList<Element>
 
     /// Always zero, which is the index of the first element when non-empty.
-    public var startIndex: Int {
+    var startIndex: Int {
         return 0
     }
 
     /// The "past-the-end" element index; the successor of the last valid subscript argument.
-    public var endIndex: Int {
+    var endIndex: Int {
         return tree.count
     }
 
     /// The number of elements in this list.
-    public var count: Int {
+    var count: Int {
         return tree.count
     }
 
     /// True iff this list has no elements.
-    public var isEmpty: Bool {
+    var isEmpty: Bool {
         return tree.count == 0
     }
 
     /// Get or set the element at the given index.
     ///
     /// - Complexity: O(log(`count`))
-    public subscript(index: Int) -> Element {
+    subscript(index: Int) -> Element {
         get {
             return tree.element(atOffset: index).1
         }
@@ -122,7 +122,7 @@ extension BTXList: MutableCollection, RandomAccessCollection {
     /// Return a sublist of this list, or replace a sublist with another list (possibly of a different size).
     ///
     /// - Complexity: O(log(`count`)) for the getter, and O(log(`count`) + `range.count`) for the setter.
-    public subscript(range: Range<Int>) -> BTXList<Element> {
+    subscript(range: Range<Int>) -> BTXList<Element> {
         get {
             return BTXList(tree.subtree(withOffsets: range))
         }
@@ -132,48 +132,48 @@ extension BTXList: MutableCollection, RandomAccessCollection {
     }
 
     /// Return an iterator over all elements in this list.
-    public func makeIterator() -> Iterator {
+    func makeIterator() -> Iterator {
         return Iterator(tree.makeIterator())
     }
 
     /// Return the successor value of `index`. This method does not verify that the given index or the result are valid in this list.
-    public func index(after index: Index) -> Index {
+    func index(after index: Index) -> Index {
         return index + 1
     }
 
     /// Replace `index` by its successor.
     /// This method does not verify that the given index or the result are valid in this list.
-    public func formIndex(after index: inout Index) {
+    func formIndex(after index: inout Index) {
         index += 1
     }
 
     /// Return the predecessor value of `index`. 
     /// This method does not verify that the given index or the result are valid in this list.
-    public func index(before index: Index) -> Index {
+    func index(before index: Index) -> Index {
         return index - 1
     }
 
     /// Replace `index` by its predecessor.
     /// This method does not verify that the given index or the result are valid in this list.
-    public func formIndex(before index: inout Index) {
+    func formIndex(before index: inout Index) {
         index -= 1
     }
 
     /// Add `n` to `i` and return the result. 
     /// This method does not verify that the given index or the result are valid in this list.
-    public func index(_ i: Index, offsetBy n: Int) -> Index {
+    func index(_ i: Index, offsetBy n: Int) -> Index {
         return i + n
     }
 
     /// Add `n` to `i` in place. 
     /// This method does not verify that the given index or the result are valid in this list.
-    public func formIndex(_ i: inout Index, offsetBy n: Int) {
+    func formIndex(_ i: inout Index, offsetBy n: Int) {
         i += n
     }
 
     /// Add `n` to `i` and return the result, unless the result would exceed (or, in case of negative `n`, go under) `limit`, in which case return `nil`.
     /// This method does not verify that the given indices (or the resulting value) are valid in this list.
-    public func index(_ i: Index, offsetBy n: Int, limitedBy limit: Index) -> Index? {
+    func index(_ i: Index, offsetBy n: Int, limitedBy limit: Index) -> Index? {
         if (n >= 0 && i + n > limit) || (n < 0 && i + n < limit) {
             return nil
         }
@@ -183,7 +183,7 @@ extension BTXList: MutableCollection, RandomAccessCollection {
     /// Add `n` to `i` in place, unless the result would exceed (or, in case of negative `n`, go under) `limit`, in which case set `i` to `limit`.
     /// This method does not verify that the given indices (or the resulting value) are valid in this list.
     @discardableResult
-    public func formIndex(_ i: inout Index, offsetBy n: Int, limitedBy limit: Index) -> Bool {
+    func formIndex(_ i: inout Index, offsetBy n: Int, limitedBy limit: Index) -> Bool {
         if (n >= 0 && i + n > limit) || (n < 0 && i + n < limit) {
             i = limit
             return false
@@ -194,17 +194,17 @@ extension BTXList: MutableCollection, RandomAccessCollection {
 
     /// Return the difference between `end` and `start`.
     /// This method does not verify that the given indices are valid in this list.
-    public func distance(from start: Index, to end: Index) -> Int {
+    func distance(from start: Index, to end: Index) -> Int {
         return end - start
     }
 
     /// Return the first element in this list, or `nil` if the list is empty.
-    public var first: Element? {
+    var first: Element? {
         return tree.first?.1
     }
 
     /// Return the last element in this list, or `nil` if the list is empty.
-    public var last: Element? {
+    var last: Element? {
         return tree.last?.1
     }
 }
@@ -215,7 +215,7 @@ extension BTXList {
     /// Call `body` on each element in `self` in ascending key order.
     ///
     /// - Complexity: O(`count`)
-    public func forEach(_ body: (Element) throws -> ()) rethrows {
+    func forEach(_ body: (Element) throws -> ()) rethrows {
         try tree.forEach { try body($0.1) }
     }
 
@@ -223,7 +223,7 @@ extension BTXList {
     /// The elements are transformed in ascending key order.
     ///
     /// - Complexity: O(`count`)
-    public func map<T>(_ transform: (Element) throws -> T) rethrows -> [T] {
+    func map<T>(_ transform: (Element) throws -> T) rethrows -> [T] {
         var result: [T] = []
         result.reserveCapacity(self.count)
         try self.forEach {
@@ -235,7 +235,7 @@ extension BTXList {
     /// Return an `Array` containing the concatenated results of mapping `transform` over `self`.
     ///
     /// - Complexity: O(`result.count`)
-    public func flatMap<S: Sequence>(_ transform: (Element) throws -> S) rethrows -> [S.Element] {
+    func flatMap<S: Sequence>(_ transform: (Element) throws -> S) rethrows -> [S.Element] {
         var result: [S.Element] = []
         try self.forEach { element in
             result.append(contentsOf: try transform(element))
@@ -246,7 +246,7 @@ extension BTXList {
     /// Return an `Array` containing the non-`nil` results of mapping `transform` over `self`.
     ///
     /// - Complexity: O(`count`)
-    public func flatMap<T>(_ transform: (Element) throws -> T?) rethrows -> [T] {
+    func flatMap<T>(_ transform: (Element) throws -> T?) rethrows -> [T] {
         var result: [T] = []
         try self.forEach { element in
             if let t = try transform(element) {
@@ -263,7 +263,7 @@ extension BTXList {
     /// I.e., return `combine(combine(...combine(combine(initial, self[0]), self[1]),...self[count-2]), self[count-1])`.
     ///
     /// - Complexity: O(`count`)
-    public func reduce<T>(_ initialResult: T, _ nextPartialResult: (T, Element) throws -> T) rethrows -> T {
+    func reduce<T>(_ initialResult: T, _ nextPartialResult: (T, Element) throws -> T) rethrows -> T {
         var result = initialResult
         try self.forEach {
             result = try nextPartialResult(result, $0)
@@ -274,7 +274,7 @@ extension BTXList {
     /// Return an `Array` containing the non-`nil` results of mapping `transform` over `self`.
     ///
     /// - Complexity: O(`count`)
-    public func filter(_ includeElement: (Element) throws -> Bool) rethrows -> [Element] {
+    func filter(_ includeElement: (Element) throws -> Bool) rethrows -> [Element] {
         var result: [Element] = []
         try self.forEach {
             if try includeElement($0) {
@@ -285,7 +285,7 @@ extension BTXList {
     }
 }
 
-public extension BTXList {
+extension BTXList {
     //MARK: Queries
 
     /// Return `true` iff `self` and `other` contain equivalent elements, using `isEquivalent` as the equivalence test.
@@ -297,7 +297,7 @@ public extension BTXList {
     /// - Complexity:  O(`count`)
     ///
     /// [equivalence relation]: https://en.wikipedia.org/wiki/Equivalence_relation
-    public func elementsEqual(_ other: BTXList<Element>, by isEquivalent: (Element, Element) throws -> Bool) rethrows -> Bool {
+    func elementsEqual(_ other: BTXList<Element>, by isEquivalent: (Element, Element) throws -> Bool) rethrows -> Bool {
         return try self.tree.elementsEqual(other.tree, by: { try isEquivalent($0.1, $1.1) })
     }
 
@@ -305,7 +305,7 @@ public extension BTXList {
     /// such value is not found.
     ///
     /// - Complexity: O(`count`)
-    public func index(where predicate: (Element) throws -> Bool) rethrows -> Index? {
+    func index(where predicate: (Element) throws -> Bool) rethrows -> Index? {
         var i = 0
         try self.tree.forEach { element -> Bool in
             if try predicate(element.1) {
@@ -318,7 +318,7 @@ public extension BTXList {
     }
 }
 
-public extension BTXList where Element: Equatable {
+extension BTXList where Element: Equatable {
 
     /// Return `true` iff `self` and `other` contain equal elements.
     ///
@@ -329,14 +329,14 @@ public extension BTXList where Element: Equatable {
     /// - Complexity:  O(`count`)
     ///
     /// [equivalence relation]: https://en.wikipedia.org/wiki/Equivalence_relation
-    public func elementsEqual(_ other: BTXList<Element>) -> Bool {
+    func elementsEqual(_ other: BTXList<Element>) -> Bool {
         return self.tree.elementsEqual(other.tree, by: { $0.1 == $1.1 })
     }
 
     /// Returns the first index where the given element appears in `self` or `nil` if the element is not found.
     ///
     /// - Complexity: O(`count`)
-    public func index(of element: Element) -> Index? {
+    func index(of element: Element) -> Index? {
         var i = 0
         self.tree.forEach { e -> Bool in
             if element == e.1 {
@@ -349,7 +349,7 @@ public extension BTXList where Element: Equatable {
     }
 
     /// Return true iff `element` is in `self`.
-    public func contains(_ element: Element) -> Bool {
+    func contains(_ element: Element) -> Bool {
         return index(of: element) != nil
     }
 
@@ -359,12 +359,12 @@ public extension BTXList where Element: Equatable {
     /// two lists are divergent mutations originating from the same value.
     ///
     /// - Complexity: O(`count`)
-    public static func ==(a: BTXList, b: BTXList) -> Bool {
+    static func ==(a: BTXList, b: BTXList) -> Bool {
         return a.elementsEqual(b)
     }
 
     /// Returns false iff the two lists do not have the same elements in the same order.
-    public static func !=(a: BTXList, b: BTXList) -> Bool {
+    static func !=(a: BTXList, b: BTXList) -> Bool {
         return !(a == b)
     }
 }
@@ -375,21 +375,21 @@ extension BTXList {
     /// Append `element` to the end of this list.
     ///
     /// - Complexity: O(log(`count`))
-    public mutating func append(_ element: Element) {
+    mutating func append(_ element: Element) {
         tree.insert((EmptyKey(), element), atOffset: tree.count)
     }
 
     /// Insert `element` into this list at `index`.
     ///
     /// - Complexity: O(log(`count`))
-    public mutating func insert(_ element: Element, at index: Int) {
+    mutating func insert(_ element: Element, at index: Int) {
         tree.insert((EmptyKey(), element), atOffset: index)
     }
 
     /// Append `list` to the end of this list.
     ///
     /// - Complexity: O(log(`self.count + list.count`))
-    public mutating func append(contentsOf list: BTXList<Element>) {
+    mutating func append(contentsOf list: BTXList<Element>) {
         tree.withCursor(atOffset: tree.count) { cursor in
             cursor.insert(list.tree)
         }
@@ -398,7 +398,7 @@ extension BTXList {
     /// Append the contents of `elements` to the end of this list.
     ///
     /// - Complexity: O(log(`count`) + *n*) where *n* is the number of elements in the sequence.
-    public mutating func append<S: Sequence>(contentsOf elements: S) where S.Element == Element {
+    mutating func append<S: Sequence>(contentsOf elements: S) where S.Element == Element {
         if let list = elements as? BTXList<Element> {
             append(contentsOf: list)
             return
@@ -411,7 +411,7 @@ extension BTXList {
     /// Insert `list` as a sublist of this list starting at `index`.
     ///
     /// - Complexity: O(log(`self.count + list.count`))
-    public mutating func insert(contentsOf list: BTXList<Element>, at index: Int) {
+    mutating func insert(contentsOf list: BTXList<Element>, at index: Int) {
         tree.withCursor(atOffset: index) { cursor in
             cursor.insert(list.tree)
         }
@@ -420,7 +420,7 @@ extension BTXList {
     /// Insert the contents of `elements` into this list starting at `index`.
     ///
     /// - Complexity: O(log(`self.count`) + *n*) where *n* is the number of elements inserted.
-    public mutating func insert<S: Sequence>(contentsOf elements: S, at index: Int) where S.Element == Element {
+    mutating func insert<S: Sequence>(contentsOf elements: S, at index: Int) where S.Element == Element {
         if let list = elements as? BTXList<Element> {
             insert(contentsOf: list, at: index)
             return
@@ -438,7 +438,7 @@ extension BTXList {
     ///
     /// - Complexity: O(log(`count`))
     @discardableResult
-    public mutating func remove(at index: Int) -> Element {
+    mutating func remove(at index: Int) -> Element {
         precondition(index >= 0 && index < count)
         return tree.remove(atOffset: index).1
     }
@@ -447,7 +447,7 @@ extension BTXList {
     ///
     /// - Complexity: O(log(`count`))
     @discardableResult
-    public mutating func removeFirst() -> Element {
+    mutating func removeFirst() -> Element {
         precondition(count > 0)
         return tree.remove(atOffset: 0).1
     }
@@ -455,7 +455,7 @@ extension BTXList {
     /// Remove the first `n` elements.
     ///
     /// - Complexity: O(log(`count`) + `n`)
-    public mutating func removeFirst(_ n: Int) {
+    mutating func removeFirst(_ n: Int) {
         precondition(n <= count)
         tree.withCursor(atOffset: 0) { cursor in
             cursor.remove(n)
@@ -466,7 +466,7 @@ extension BTXList {
     ///
     /// - Complexity: O(log(`count`))
     @discardableResult
-    public mutating func removeLast() -> Element {
+    mutating func removeLast() -> Element {
         precondition(count > 0)
         return tree.remove(atOffset: count - 1).1
     }
@@ -474,7 +474,7 @@ extension BTXList {
     /// Remove and return the last `n` elements.
     ///
     /// - Complexity: O(log(`count`) + `n`)
-    public mutating func removeLast(_ n: Int) {
+    mutating func removeLast(_ n: Int) {
         precondition(n <= count)
         tree.withCursor(atOffset: count - n) { cursor in
             cursor.remove(n)
@@ -485,7 +485,7 @@ extension BTXList {
     ///
     /// - Complexity: O(log(`count`))
     @discardableResult
-    public mutating func popLast() -> Element? {
+    mutating func popLast() -> Element? {
         guard count > 0 else { return nil }
         return tree.remove(atOffset: count - 1).1
     }
@@ -494,7 +494,7 @@ extension BTXList {
     ///
     /// - Complexity: O(log(`count`))
     @discardableResult
-    public mutating func popFirst() -> Element? {
+    mutating func popFirst() -> Element? {
         guard count > 0 else { return nil }
         return tree.remove(atOffset: 0).1
     }
@@ -502,7 +502,7 @@ extension BTXList {
     /// Remove elements in the specified range of indexes.
     ///
     /// - Complexity: O(log(`self.count`) + `range.count`)
-    public mutating func removeSubrange(_ range: Range<Int>) {
+    mutating func removeSubrange(_ range: Range<Int>) {
         precondition(range.lowerBound >= 0 && range.upperBound <= count)
         tree.withCursor(atOffset: range.lowerBound) { cursor in
             cursor.remove(range.count)
@@ -512,7 +512,7 @@ extension BTXList {
     /// Remove all elements.
     ///
     /// - Complexity: O(`count`)
-    public mutating func removeAll() {
+    mutating func removeAll() {
         tree = Tree()
     }
 }
@@ -523,7 +523,7 @@ extension BTXList: RangeReplaceableCollection {
     /// Replace elements in `range` with `elements`.
     ///
     /// - Complexity: O(log(`count`) + `range.count`)
-    public mutating func replaceSubrange(_ range: Range<Int>, with elements: BTXList<Element>) {
+    mutating func replaceSubrange(_ range: Range<Int>, with elements: BTXList<Element>) {
         precondition(range.lowerBound >= 0 && range.upperBound <= count)
         tree.withCursor(atOffset: range.lowerBound) { cursor in
             cursor.remove(range.count)
@@ -534,7 +534,7 @@ extension BTXList: RangeReplaceableCollection {
     /// Replace elements in `range` with `elements`.
     ///
     /// - Complexity: O(log(`count`) + `max(range.count, elements.count)`)
-    public mutating func replaceSubrange<C: Collection>(_ range: Range<Int>, with elements: C) where C.Element == Element {
+    mutating func replaceSubrange<C: Collection>(_ range: Range<Int>, with elements: C) where C.Element == Element {
         precondition(range.lowerBound >= 0 && range.upperBound <= count)
         if let list = elements as? BTXList<Element> {
             replaceSubrange(range, with: list)
@@ -559,7 +559,7 @@ extension BTXList: RangeReplaceableCollection {
 
 extension BTXList {
     /// Concatenate `a` with `b` and return the resulting `List`.
-    public static func +(a: BTXList, b: BTXList) -> BTXList {
+    static func +(a: BTXList, b: BTXList) -> BTXList {
         var result = a
         result.append(contentsOf: b)
         return result

@@ -18,7 +18,7 @@ extension BTree {
     /// - Complexity:  O(`count`)
     ///
     /// [equivalence relation]: https://en.wikipedia.org/wiki/Equivalence_relation
-    public func elementsEqual(_ other: BTree, by isEquivalent: (Element, Element) throws -> Bool) rethrows -> Bool {
+    func elementsEqual(_ other: BTree, by isEquivalent: (Element, Element) throws -> Bool) rethrows -> Bool {
         if self.root === other.root { return true }
         if self.count != other.count { return false }
 
@@ -52,7 +52,7 @@ extension BTree where Value: Equatable {
     /// two trees are divergent mutations originating from the same value.
     ///
     /// - Complexity:  O(`count`)
-    public func elementsEqual(_ other: BTree) -> Bool {
+    func elementsEqual(_ other: BTree) -> Bool {
         return self.elementsEqual(other, by: { $0.0 == $1.0 && $0.1 == $1.1 })
     }
 
@@ -62,7 +62,7 @@ extension BTree where Value: Equatable {
     /// two trees are divergent mutations originating from the same value.
     ///
     /// - Complexity:  O(`count`)
-    public static func == (a: BTree, b: BTree) -> Bool {
+    static func == (a: BTree, b: BTree) -> Bool {
         return a.elementsEqual(b)
     }
 
@@ -72,7 +72,7 @@ extension BTree where Value: Equatable {
     /// two trees are divergent mutations originating from the same value.
     ///
     /// - Complexity:  O(`count`)
-    public static func != (a: BTree, b: BTree) -> Bool {
+    static func != (a: BTree, b: BTree) -> Bool {
         return !(a == b)
     }
 }
@@ -83,7 +83,7 @@ extension BTree {
     /// - Complexity:
     ///    - O(min(`self.count`, `tree.count`)) in general.
     ///    - O(log(`self.count` + `tree.count`)) if there are only a constant amount of interleaving element runs.
-    public func isDisjoint(with tree: BTree) -> Bool {
+    func isDisjoint(with tree: BTree) -> Bool {
         var a = BTreeStrongPath(startOf: self.root)
         var b = BTreeStrongPath(startOf: tree.root)
         if !a.isAtEnd && !b.isAtEnd {
@@ -109,7 +109,7 @@ extension BTree {
     /// - Complexity:
     ///    - O(min(`self.count`, `tree.count`)) in general.
     ///    - O(log(`self.count` + `tree.count`)) if there are only a constant amount of interleaving element runs.
-    public func isSubset(of tree: BTree, by strategy: BTreeMatchingStrategy) -> Bool {
+    func isSubset(of tree: BTree, by strategy: BTreeMatchingStrategy) -> Bool {
         return isSubset(of: tree, by: strategy, strict: false)
     }
 
@@ -119,7 +119,7 @@ extension BTree {
     /// - Complexity:
     ///    - O(min(`self.count`, `tree.count`)) in general.
     ///    - O(log(`self.count` + `tree.count`)) if there are only a constant amount of interleaving element runs.
-    public func isStrictSubset(of tree: BTree, by strategy: BTreeMatchingStrategy) -> Bool {
+    func isStrictSubset(of tree: BTree, by strategy: BTreeMatchingStrategy) -> Bool {
         return isSubset(of: tree, by: strategy, strict: true)
     }
 
@@ -128,7 +128,7 @@ extension BTree {
     /// - Complexity:
     ///    - O(min(`self.count`, `tree.count`)) in general.
     ///    - O(log(`self.count` + `tree.count`)) if there are only a constant amount of interleaving element runs.
-    public func isSuperset(of tree: BTree, by strategy: BTreeMatchingStrategy) -> Bool {
+    func isSuperset(of tree: BTree, by strategy: BTreeMatchingStrategy) -> Bool {
         return tree.isSubset(of: self, by: strategy, strict: false)
     }
 
@@ -138,7 +138,7 @@ extension BTree {
     /// - Complexity:
     ///    - O(min(`self.count`, `tree.count`)) in general.
     ///    - O(log(`self.count` + `tree.count`)) if there are only a constant amount of interleaving element runs.
-    public func isStrictSuperset(of tree: BTree, by strategy: BTreeMatchingStrategy) -> Bool {
+    func isStrictSuperset(of tree: BTree, by strategy: BTreeMatchingStrategy) -> Bool {
         return tree.isSubset(of: self, by: strategy, strict: true)
     }
 

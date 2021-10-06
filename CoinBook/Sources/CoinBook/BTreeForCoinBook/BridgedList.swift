@@ -13,7 +13,7 @@ extension BTXList where Element: AnyObject {
     /// This is useful when you want to use `List` values in Objective-C APIs.
     /// 
     /// - Complexity: O(1)
-    public var arrayView: NSArray {
+    var arrayView: NSArray {
         return BridgedList<Element>(self.tree)
     }
 }
@@ -25,7 +25,7 @@ internal final class BridgedListEnumerator<Key: Comparable, Value>: NSEnumerator
         super.init()
     }
 
-    public override func nextObject() -> Any? {
+    override func nextObject() -> Any? {
         return iterator.next()?.1
     }
 }
@@ -38,7 +38,7 @@ internal class BridgedList<Value>: NSArray {
         self.tree = tree
     }
     
-    public override func copy(with zone: NSZone? = nil) -> Any {
+    override func copy(with zone: NSZone? = nil) -> Any {
         return self
     }
 
@@ -46,15 +46,15 @@ internal class BridgedList<Value>: NSArray {
         return tree.count
     }
 
-    public override func object(at index: Int) -> Any {
+    override func object(at index: Int) -> Any {
         return tree.element(atOffset: index).1
     }
 
-    public override func objectEnumerator() -> NSEnumerator {
+    override func objectEnumerator() -> NSEnumerator {
         return BridgedListEnumerator(iterator: tree.makeIterator())
     }
 
-    public override func countByEnumerating(with state: UnsafeMutablePointer<NSFastEnumerationState>, objects buffer: AutoreleasingUnsafeMutablePointer<AnyObject?>, count len: Int) -> Int {
+    override func countByEnumerating(with state: UnsafeMutablePointer<NSFastEnumerationState>, objects buffer: AutoreleasingUnsafeMutablePointer<AnyObject?>, count len: Int) -> Int {
         precondition(MemoryLayout<(EmptyKey, Value)>.size == MemoryLayout<Value>.size)
         precondition(MemoryLayout<(EmptyKey, Value)>.stride == MemoryLayout<Value>.stride)
         precondition(MemoryLayout<(EmptyKey, Value)>.alignment == MemoryLayout<Value>.alignment)

@@ -2,7 +2,8 @@ import Foundation
 import UIKit
 
 extension Shell {
-    static func orderBook() -> UIViewController & OrderBookIO {
+    @available(*, deprecated)
+    static func orderBook1() -> UIViewController & OrderBook1IO {
         let cellSize = NSCollectionLayoutSize(
             widthDimension: .fractionalWidth(1),
             heightDimension: .absolute(44))
@@ -13,10 +14,11 @@ extension Shell {
                     subitems: [
                         NSCollectionLayoutItem(layoutSize: cellSize),
                     ])))
-        return OrderBookImpl(collectionViewLayout: layout)
+        return OrderBook1Impl(collectionViewLayout: layout)
     }
 }
-protocol OrderBookIO {
+@available(*, deprecated)
+protocol OrderBook1IO {
     func process(_ x:Rendition)
     func dispatch(_ fx:@escaping(Action) -> Void)
 }
@@ -36,12 +38,14 @@ private struct OrderBookRendition {
     func largestTotalQuantity() -> Int64 {
         max(buy.items.last?.accumulatedTotalQuantity ?? 0, sell.items.last?.accumulatedTotalQuantity ?? 0)
     }
-    func buyRowFillRatio(at row:Int) -> CGFloat? {
+    func buyRowFillRatio(at row:Int?) -> CGFloat? {
+        guard let row = row else { return nil }
         let largest = largestTotalQuantity()
         let current = buy.items.elementIfExists(at: row)?.accumulatedTotalQuantity ?? 0
         return CGFloat(current) / CGFloat(largest)
     }
-    func sellRowFillRatio(at row:Int) -> CGFloat? {
+    func sellRowFillRatio(at row:Int?) -> CGFloat? {
+        guard let row = row else { return nil }
         let largest = largestTotalQuantity()
         let current = sell.items.elementIfExists(at: row)?.accumulatedTotalQuantity ?? 0
         return CGFloat(current) / CGFloat(largest)
@@ -82,7 +86,8 @@ private extension State {
     }
 }
 
-private final class OrderBookImpl: UICollectionViewController, OrderBookIO {
+@available(*, deprecated)
+private final class OrderBook1Impl: UICollectionViewController, OrderBook1IO {
     private let throttle = Throttle<State>(interval: 0.1)
     private var broadcast = noop as (Action) -> Void
     

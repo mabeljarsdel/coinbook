@@ -23,7 +23,7 @@
 /// O(log(n)) time if the elements in the input bags aren't too interleaved.
 ///
 /// - SeeAlso: `SortedSet`
-public struct BTXSortedBag<Element: Comparable>: SetAlgebra {
+struct BTXSortedBag<Element: Comparable>: SetAlgebra {
     internal typealias Tree = BTree<Element, Void>
 
     /// The b-tree that serves as storage.
@@ -38,14 +38,14 @@ extension BTXSortedBag {
     //MARK: Initializers
 
     /// Create an empty bag.
-    public init() {
+    init() {
         self.tree = Tree()
     }
 
     /// Create a bag that holds the same members as the specified sorted set.
     /// 
     /// Complexity: O(1); the new bag simply refers to the same storage as the set.
-    public init(_ set: BTXSortedSet<Element>) {
+    init(_ set: BTXSortedSet<Element>) {
         self.tree = set.tree
     }
 
@@ -53,7 +53,7 @@ extension BTXSortedBag {
     /// If the sequence contains duplicate items, all of them are kept, in the same order.
     ///
     /// - Complexity: O(*n* * log(*n*)), where *n* is the number of items in the sequence.
-    public init<S: Sequence>(_ elements: S) where S.Element == Element {
+    init<S: Sequence>(_ elements: S) where S.Element == Element {
         self.init(Tree(sortedElements: elements.sorted().lazy.map { ($0, ()) }, dropDuplicates: false))
     }
 
@@ -61,13 +61,13 @@ extension BTXSortedBag {
     /// If the sequence contains duplicate items, all of them are kept.
     ///
     /// - Complexity: O(*n*), where *n* is the number of items in the sequence.
-    public init<S: Sequence>(sortedElements elements: S) where S.Element == Element {
+    init<S: Sequence>(sortedElements elements: S) where S.Element == Element {
         self.init(Tree(sortedElements: elements.lazy.map { ($0, ()) }, dropDuplicates: false))
     }
 
     /// Create a bag with the specified list of items.
     /// If the array literal contains duplicate items, all of them are kept.
-    public init(arrayLiteral elements: Element...) {
+    init(arrayLiteral elements: Element...) {
         self.init(elements)
     }
 }
@@ -75,31 +75,31 @@ extension BTXSortedBag {
 extension BTXSortedBag: BidirectionalCollection {
     //MARK: CollectionType
 
-    public typealias Index = BTreeIndex<Element, Void>
-    public typealias Iterator = BTreeKeyIterator<Element>
-    public typealias SubSequence = BTXSortedBag<Element>
+    typealias Index = BTreeIndex<Element, Void>
+    typealias Iterator = BTreeKeyIterator<Element>
+    typealias SubSequence = BTXSortedBag<Element>
 
     /// The index of the first element when non-empty. Otherwise the same as `endIndex`.
     ///
     /// - Complexity: O(log(`count`))
-    public var startIndex: Index {
+    var startIndex: Index {
         return tree.startIndex
     }
 
     /// The "past-the-end" element index; the successor of the last valid subscript argument.
     ///
     /// - Complexity: O(1)
-    public var endIndex: Index {
+    var endIndex: Index {
         return tree.endIndex
     }
 
     /// The number of elements in this bag.
-    public var count: Int {
+    var count: Int {
         return tree.count
     }
 
     /// True iff this collection has no elements.
-    public var isEmpty: Bool {
+    var isEmpty: Bool {
         return count == 0
     }
 
@@ -107,7 +107,7 @@ extension BTXSortedBag: BidirectionalCollection {
     ///
     /// - Requires: `index` originated from an unmutated copy of this set.
     /// - Complexity: O(1)
-    public subscript(index: Index) -> Element {
+    subscript(index: Index) -> Element {
         return tree[index].0
     }
 
@@ -115,12 +115,12 @@ extension BTXSortedBag: BidirectionalCollection {
     ///
     /// - Requires: The indices in `range` originated from an unmutated copy of this bag.
     /// - Complexity: O(log(`count`))
-    public subscript(range: Range<Index>) -> BTXSortedBag<Element> {
+    subscript(range: Range<Index>) -> BTXSortedBag<Element> {
         return BTXSortedBag(tree[range])
     }
 
     /// Return an iterator over all elements in this map, in ascending key order.
-    public func makeIterator() -> Iterator {
+    func makeIterator() -> Iterator {
         return Iterator(tree.makeIterator())
     }
 
@@ -128,7 +128,7 @@ extension BTXSortedBag: BidirectionalCollection {
     ///
     /// - Requires: `index` is a valid index of this bag and it is not equal to `endIndex`.
     /// - Complexity: Amortized O(1).
-    public func index(after index: Index) -> Index {
+    func index(after index: Index) -> Index {
         return tree.index(after: index)
     }
 
@@ -136,7 +136,7 @@ extension BTXSortedBag: BidirectionalCollection {
     ///
     /// - Requires: `index` is a valid index of this bag and it is not equal to `endIndex`.
     /// - Complexity: Amortized O(1).
-    public func formIndex(after index: inout Index) {
+    func formIndex(after index: inout Index) {
         tree.formIndex(after: &index)
     }
 
@@ -144,7 +144,7 @@ extension BTXSortedBag: BidirectionalCollection {
     ///
     /// - Requires: `index` is a valid index of this bag and it is not equal to `startIndex`.
     /// - Complexity: Amortized O(1).
-    public func index(before index: Index) -> Index {
+    func index(before index: Index) -> Index {
         return tree.index(before: index)
     }
 
@@ -152,7 +152,7 @@ extension BTXSortedBag: BidirectionalCollection {
     ///
     /// - Requires: `index` is a valid index of this bag and it is not equal to `startIndex`.
     /// - Complexity: Amortized O(1).
-    public func formIndex(before index: inout Index) {
+    func formIndex(before index: inout Index) {
         tree.formIndex(before: &index)
     }
 
@@ -162,7 +162,7 @@ extension BTXSortedBag: BidirectionalCollection {
     ///              If `n` is positive, it must not exceed the distance from `index` to `endIndex`.
     ///              If `n` is negative, it must not be less than the distance from `index` to `startIndex`.
     /// - Complexity: O(log(*count*)) where *count* is the number of elements in the set.
-    public func index(_ i: Index, offsetBy n: Int) -> Index {
+    func index(_ i: Index, offsetBy n: Int) -> Index {
         return tree.index(i, offsetBy: n)
     }
 
@@ -172,7 +172,7 @@ extension BTXSortedBag: BidirectionalCollection {
     ///              If `n` is positive, it must not exceed the distance from `index` to `endIndex`.
     ///              If `n` is negative, it must not be less than the distance from `index` to `startIndex`.
     /// - Complexity: O(log(*count*)) where *count* is the number of elements in the bag.
-    public func formIndex(_ i: inout Index, offsetBy n: Int) {
+    func formIndex(_ i: inout Index, offsetBy n: Int) {
         tree.formIndex(&i, offsetBy: n)
     }
 
@@ -180,7 +180,7 @@ extension BTXSortedBag: BidirectionalCollection {
     ///
     /// - Requires: `index` and `limit` must be valid indices in this bag. The operation must not advance the index beyond `endIndex` or before `startIndex`.
     /// - Complexity: O(log(*count*)) where *count* is the number of elements in the bag.
-    public func index(_ i: Index, offsetBy n: Int, limitedBy limit: Index) -> Index? {
+    func index(_ i: Index, offsetBy n: Int, limitedBy limit: Index) -> Index? {
         return tree.index(i, offsetBy: n, limitedBy: limit)
     }
 
@@ -189,7 +189,7 @@ extension BTXSortedBag: BidirectionalCollection {
     /// - Requires: `index` and `limit` must be valid indices in this bag. The operation must not advance the index beyond `endIndex` or before `startIndex`.
     /// - Complexity: O(log(*count*)) where *count* is the number of elements in the bag.
     @discardableResult
-    public func formIndex(_ i: inout Index, offsetBy n: Int, limitedBy limit: Index) -> Bool {
+    func formIndex(_ i: inout Index, offsetBy n: Int, limitedBy limit: Index) -> Bool {
         return tree.formIndex(&i, offsetBy: n, limitedBy: limit)
     }
 
@@ -197,7 +197,7 @@ extension BTXSortedBag: BidirectionalCollection {
     ///
     /// - Requires: `start` and `end` must be valid indices in this bag.
     /// - Complexity: O(1)
-    public func distance(from start: Index, to end: Index) -> Int {
+    func distance(from start: Index, to end: Index) -> Int {
         return tree.distance(from: start, to: end)
     }
 }
@@ -208,14 +208,14 @@ extension BTXSortedBag {
     /// If `member` is in this bag, return the offset of its first instance. Otherwise, return `nil`.
     ///
     /// - Complexity: O(log(`count`))
-    public func offset(of member: Element) -> Int? {
+    func offset(of member: Element) -> Int? {
         return tree.offset(forKey: member, choosing: .first)
     }
 
     /// Returns the offset of the element at `index`.
     ///
     /// - Complexity: O(log(`count`))
-    public func index(ofOffset offset: Int) -> Index {
+    func index(ofOffset offset: Int) -> Index {
         return tree.index(ofOffset: offset)
     }
 
@@ -223,21 +223,21 @@ extension BTXSortedBag {
     ///
     /// - Requires: `offset >= 0 && offset < count`
     /// - Complexity: O(log(`count`))
-    public func offset(of index: Index) -> Int {
+    func offset(of index: Index) -> Int {
         return tree.offset(of: index)
     }
 
     /// Returns the element at `offset` from the start of the bag.
     ///
     /// - Complexity: O(log(`count`))
-    public subscript(offset: Int) -> Element {
+    subscript(offset: Int) -> Element {
         return tree.element(atOffset: offset).0
     }
 
     /// Returns the subbag containing elements in the specified range of offsets from the start of the bag.
     ///
     /// - Complexity: O(log(`count`))
-    public subscript(offsetRange: Range<Int>) -> BTXSortedBag<Element> {
+    subscript(offsetRange: Range<Int>) -> BTXSortedBag<Element> {
         return BTXSortedBag(tree.subtree(withOffsets: offsetRange))
     }
 }
@@ -246,27 +246,27 @@ extension BTXSortedBag {
     //MARK: Algorithms
 
     /// Call `body` on each element in `self` in ascending order.
-    public func forEach(_ body: (Element) throws -> Void) rethrows {
+    func forEach(_ body: (Element) throws -> Void) rethrows {
         return try tree.forEach { try body($0.0) }
     }
 
     /// Return an `Array` containing the results of mapping transform over `self`.
-    public func map<T>(_ transform: (Element) throws -> T) rethrows -> [T] {
+    func map<T>(_ transform: (Element) throws -> T) rethrows -> [T] {
         return try tree.map { try transform($0.0) }
     }
 
     /// Return an `Array` containing the concatenated results of mapping `transform` over `self`.
-    public func flatMap<S : Sequence>(_ transform: (Element) throws -> S) rethrows -> [S.Element] {
+    func flatMap<S : Sequence>(_ transform: (Element) throws -> S) rethrows -> [S.Element] {
         return try tree.flatMap { try transform($0.0) }
     }
 
     /// Return an `Array` containing the non-`nil` results of mapping `transform` over `self`.
-    public func flatMap<T>(_ transform: (Element) throws -> T?) rethrows -> [T] {
-        return try tree.flatMap { try transform($0.0) }
+    func flatMap<T>(_ transform: (Element) throws -> T?) rethrows -> [T] {
+        return try tree.compactMap { try transform($0.0) }
     }
 
     /// Return an `Array` containing the elements of `self`, in ascending order, that satisfy the predicate `includeElement`.
-    public func filter(_ includeElement: (Element) throws -> Bool) rethrows -> [Element] {
+    func filter(_ includeElement: (Element) throws -> Bool) rethrows -> [Element] {
         var result: [Element] = []
         try tree.forEach { e -> () in
             if try includeElement(e.0) {
@@ -279,7 +279,7 @@ extension BTXSortedBag {
     /// Return the result of repeatedly calling `combine` with an accumulated value initialized to `initial`
     /// and each element of `self`, in turn.
     /// I.e., return `combine(combine(...combine(combine(initial, self[0]), self[1]),...self[count-2]), self[count-1])`.
-    public func reduce<T>(_ initialResult: T, _ nextPartialResult: (T, Element) throws -> T) rethrows -> T {
+    func reduce<T>(_ initialResult: T, _ nextPartialResult: (T, Element) throws -> T) rethrows -> T {
         return try tree.reduce(initialResult) { try nextPartialResult($0, $1.0) }
     }
 }
@@ -290,28 +290,28 @@ extension BTXSortedBag {
     /// Return (the first instance of) the smallest element in the bag, or `nil` if the bag is empty.
     ///
     /// - Complexity: O(log(`count`))
-    public var first: Element? { return tree.first?.0 }
+    var first: Element? { return tree.first?.0 }
 
     /// Return (the last instance of) the largest element in the bag, or `nil` if the bag is empty.
     ///
     /// - Complexity: O(log(`count`))
-    public var last: Element? { return tree.last?.0 }
+    var last: Element? { return tree.last?.0 }
 
     /// Return the smallest element in the bag, or `nil` if the bag is empty. This is the same as `first`.
     ///
     /// - Complexity: O(log(`count`))
-    public func min() -> Element? { return first }
+    func min() -> Element? { return first }
 
     /// Return the largest element in the set, or `nil` if the set is empty. This is the same as `last`.
     ///
     /// - Complexity: O(log(`count`))
-    public func max() -> Element? { return last }
+    func max() -> Element? { return last }
 
     // Return a copy of this bag with the smallest element removed.
     /// If this bag is empty, the result is an empty bag.
     ///
     /// - Complexity: O(log(`count`))
-    public func dropFirst() -> BTXSortedBag {
+    func dropFirst() -> BTXSortedBag {
         return BTXSortedBag(tree.dropFirst())
     }
 
@@ -319,7 +319,7 @@ extension BTXSortedBag {
     /// If `n` exceeds the number of elements in the bag, the result is an empty bag.
     ///
     /// - Complexity: O(log(`count`))
-    public func dropFirst(_ n: Int) -> BTXSortedBag {
+    func dropFirst(_ n: Int) -> BTXSortedBag {
         return BTXSortedBag(tree.dropFirst(n))
     }
 
@@ -327,7 +327,7 @@ extension BTXSortedBag {
     /// If this bag is empty, the result is an empty bag.
     ///
     /// - Complexity: O(log(`count`))
-    public func dropLast() -> BTXSortedBag {
+    func dropLast() -> BTXSortedBag {
         return BTXSortedBag(tree.dropLast())
     }
 
@@ -335,7 +335,7 @@ extension BTXSortedBag {
     /// If `n` exceeds the number of elements in the bag, the result is an empty bag.
     ///
     /// - Complexity: O(log(`count`))
-    public func dropLast(_ n: Int) -> BTXSortedBag {
+    func dropLast(_ n: Int) -> BTXSortedBag {
         return BTXSortedBag(tree.dropLast(n))
     }
 
@@ -344,14 +344,14 @@ extension BTXSortedBag {
     /// If `maxLength` exceeds the number of elements, the result contains all the elements of `self`.
     ///
     /// - Complexity: O(log(`count`))
-    public func prefix(_  maxLength: Int) -> BTXSortedBag {
+    func prefix(_  maxLength: Int) -> BTXSortedBag {
         return BTXSortedBag(tree.prefix(maxLength))
     }
 
     /// Returns a subbag containing all members of this bag at or before the specified index.
     ///
     /// - Complexity: O(log(`count`))
-    public func prefix(through index: Index) -> BTXSortedBag {
+    func prefix(through index: Index) -> BTXSortedBag {
         return BTXSortedBag(tree.prefix(through: index))
     }
 
@@ -359,14 +359,14 @@ extension BTXSortedBag {
     /// (which may or may not be a member of this bag).
     ///
     /// - Complexity: O(log(`count`))
-    public func prefix(through element: Element) -> BTXSortedBag {
+    func prefix(through element: Element) -> BTXSortedBag {
         return BTXSortedBag(tree.prefix(through: element))
     }
 
     /// Returns a subbag containing all members of this bag before the specified index.
     ///
     /// - Complexity: O(log(`count`))
-    public func prefix(upTo end: Index) -> BTXSortedBag {
+    func prefix(upTo end: Index) -> BTXSortedBag {
         return BTXSortedBag(tree.prefix(upTo: end))
     }
 
@@ -374,7 +374,7 @@ extension BTXSortedBag {
     /// (which may or may not be a member of this bag).
     ///
     /// - Complexity: O(log(`count`))
-    public func prefix(upTo end: Element) -> BTXSortedBag {
+    func prefix(upTo end: Element) -> BTXSortedBag {
         return BTXSortedBag(tree.prefix(upTo: end))
     }
 
@@ -383,14 +383,14 @@ extension BTXSortedBag {
     /// If `maxLength` exceeds the number of members, the result contains all the elements of `self`.
     ///
     /// - Complexity: O(log(`count`))
-    public func suffix(_ maxLength: Int) -> BTXSortedBag {
+    func suffix(_ maxLength: Int) -> BTXSortedBag {
         return BTXSortedBag(tree.suffix(maxLength))
     }
 
     /// Returns a subbag containing all members of this bag at or after the specified index.
     ///
     /// - Complexity: O(log(`count`))
-    public func suffix(from index: Index) -> BTXSortedBag {
+    func suffix(from index: Index) -> BTXSortedBag {
         return BTXSortedBag(tree.suffix(from: index))
     }
 
@@ -398,7 +398,7 @@ extension BTXSortedBag {
     /// (which may or may not be a member of this bag).
     ///
     /// - Complexity: O(log(`count`))
-    public func suffix(from element: Element) -> BTXSortedBag {
+    func suffix(from element: Element) -> BTXSortedBag {
         return BTXSortedBag(tree.suffix(from: element))
     }
 }
@@ -407,13 +407,13 @@ extension BTXSortedBag: CustomStringConvertible, CustomDebugStringConvertible {
     //MARK: Conversion to string
 
     /// A textual representation of this bag.
-    public var description: String {
+    var description: String {
         let contents = self.map { String(reflecting: $0) }
         return "[" + contents.joined(separator: ", ") + "]"
     }
 
     /// A textual representation of this bag, suitable for debugging.
-    public var debugDescription: String {
+    var debugDescription: String {
         return "SortedBag(" + description + ")"
     }
 }
@@ -424,7 +424,7 @@ extension BTXSortedBag {
     /// Return true if the bag contains `element`.
     ///
     /// - Complexity: O(log(`count`))
-    public func contains(_ element: Element) -> Bool {
+    func contains(_ element: Element) -> Bool {
         return tree.value(of: element) != nil
     }
 
@@ -432,7 +432,7 @@ extension BTXSortedBag {
     /// Returns 0 if `member` is not an element.
     ///
     /// - Complexity: O(log(`count`))
-    public func count(of member: Element) -> Int {
+    func count(of member: Element) -> Int {
         var path = BTreeStrongPath(root: tree.root, key: member, choosing: .first)
         let start = path.offset
         path.move(to: member, choosing: .after)
@@ -442,7 +442,7 @@ extension BTXSortedBag {
     /// Returns the index of the first instance of a given member, or `nil` if the member is not present in the bag.
     ///
     /// - Complexity: O(log(`count`))
-    public func index(of member: Element) -> BTreeIndex<Element, Void>? {
+    func index(of member: Element) -> BTreeIndex<Element, Void>? {
         return tree.index(forKey: member, choosing: .first)
     }
 
@@ -451,7 +451,7 @@ extension BTXSortedBag {
     /// This function never returns `endIndex`. (If it returns non-nil, the returned index can be used to subscript the bag.)
     ///
     /// - Complexity: O(log(`count`))
-    public func indexOfFirstElement(after element: Element) -> BTreeIndex<Element, Void>? {
+    func indexOfFirstElement(after element: Element) -> BTreeIndex<Element, Void>? {
         let index = tree.index(forInserting: element, at: .last)
         if tree.offset(of: index) == tree.count { return nil }
         return index
@@ -462,7 +462,7 @@ extension BTXSortedBag {
     /// This function never returns `endIndex`. (If it returns non-nil, the returned index can be used to subscript the bag.)
     ///
     /// - Complexity: O(log(`count`))
-    public func indexOfFirstElement(notBefore element: Element) -> BTreeIndex<Element, Void>? {
+    func indexOfFirstElement(notBefore element: Element) -> BTreeIndex<Element, Void>? {
         let index = tree.index(forInserting: element, at: .first)
         if tree.offset(of: index) == tree.count { return nil }
         return index
@@ -473,7 +473,7 @@ extension BTXSortedBag {
     /// This function never returns `endIndex`. (If it returns non-nil, the returned index can be used to subscript the bag.)
     ///
     /// - Complexity: O(log(`count`))
-    public func indexOfLastElement(before element: Element) -> BTreeIndex<Element, Void>? {
+    func indexOfLastElement(before element: Element) -> BTreeIndex<Element, Void>? {
         var index = tree.index(forInserting: element, at: .first)
         if tree.offset(of: index) == 0 { return nil }
         tree.formIndex(before: &index)
@@ -485,7 +485,7 @@ extension BTXSortedBag {
     /// This function never returns `endIndex`. (If it returns non-nil, the returned index can be used to subscript the bag.)
     ///
     /// - Complexity: O(log(`count`))
-    public func indexOfLastElement(notAfter element: Element) -> BTreeIndex<Element, Void>? {
+    func indexOfLastElement(notAfter element: Element) -> BTreeIndex<Element, Void>? {
         var index = tree.index(forInserting: element, at: .last)
         if tree.offset(of: index) == 0 { return nil }
         tree.formIndex(before: &index)
@@ -502,7 +502,7 @@ extension BTXSortedBag {
     /// two bags are divergent mutations originating from the same value.
     ///
     /// - Complexity:  O(`count`)
-    public func elementsEqual(_ other: BTXSortedBag<Element>) -> Bool {
+    func elementsEqual(_ other: BTXSortedBag<Element>) -> Bool {
         return self.tree.elementsEqual(other.tree, by: { $0.0 == $1.0 })
     }
 
@@ -512,7 +512,7 @@ extension BTXSortedBag {
     /// two bags are divergent mutations originating from the same value.
     ///
     /// - Complexity: O(`count`)
-    public static func ==(a: BTXSortedBag<Element>, b: BTXSortedBag<Element>) -> Bool {
+    static func ==(a: BTXSortedBag<Element>, b: BTXSortedBag<Element>) -> Bool {
         return a.elementsEqual(b)
     }
 
@@ -525,7 +525,7 @@ extension BTXSortedBag {
     /// - Complexity:
     ///    - O(min(`self.count`, `other.count`)) in general.
     ///    - O(log(`self.count` + `other.count`)) if there are only a constant amount of interleaving element runs.
-    public func isDisjoint(with other: BTXSortedBag<Element>) -> Bool {
+    func isDisjoint(with other: BTXSortedBag<Element>) -> Bool {
         return tree.isDisjoint(with: other.tree)
     }
 
@@ -538,7 +538,7 @@ extension BTXSortedBag {
     /// - Complexity:
     ///    - O(min(`self.count`, `other.count`)) in general.
     ///    - O(log(`self.count` + `other.count`)) if there are only a constant amount of interleaving element runs.
-    public func isSubset(of other: BTXSortedBag<Element>) -> Bool {
+    func isSubset(of other: BTXSortedBag<Element>) -> Bool {
         return tree.isSubset(of: other.tree, by: .countingMatches)
     }
 
@@ -551,7 +551,7 @@ extension BTXSortedBag {
     /// - Complexity:
     ///    - O(min(`self.count`, `other.count`)) in general.
     ///    - O(log(`self.count` + `other.count`)) if there are only a constant amount of interleaving element runs.
-    public func isStrictSubset(of other: BTXSortedBag<Element>) -> Bool {
+    func isStrictSubset(of other: BTXSortedBag<Element>) -> Bool {
         return tree.isStrictSubset(of: other.tree, by: .countingMatches)
     }
 
@@ -564,7 +564,7 @@ extension BTXSortedBag {
     /// - Complexity:
     ///    - O(min(`self.count`, `other.count`)) in general.
     ///    - O(log(`self.count` + `other.count`)) if there are only a constant amount of interleaving element runs.
-    public func isSuperset(of other: BTXSortedBag<Element>) -> Bool {
+    func isSuperset(of other: BTXSortedBag<Element>) -> Bool {
         return tree.isSuperset(of: other.tree, by: .countingMatches)
     }
 
@@ -577,7 +577,7 @@ extension BTXSortedBag {
     /// - Complexity:
     ///    - O(min(`self.count`, `other.count`)) in general.
     ///    - O(log(`self.count` + `other.count`)) if there are only a constant amount of interleaving element runs.
-    public func isStrictSuperset(of other: BTXSortedBag<Element>) -> Bool {
+    func isStrictSuperset(of other: BTXSortedBag<Element>) -> Bool {
         return tree.isStrictSuperset(of: other.tree, by: .countingMatches)
     }
 }
@@ -599,7 +599,7 @@ extension BTXSortedBag {
     ///
     /// - Complexity: O(log(`count`))
     @discardableResult
-    public mutating func insert(_ newMember: Element) -> (inserted: Bool, memberAfterInsert: Element) {
+    mutating func insert(_ newMember: Element) -> (inserted: Bool, memberAfterInsert: Element) {
         tree.insert((newMember, ()), at: .after)
         return (true, newMember)
     }
@@ -616,7 +616,7 @@ extension BTXSortedBag {
     ///
     /// - Returns: Always returns `nil`, to satisfy the syntactic requirements of the `SetAlgebra` protocol.
     @discardableResult
-    public mutating func update(with newMember: Element) -> Element? {
+    mutating func update(with newMember: Element) -> Element? {
         tree.insert((newMember, ()), at: .first)
         return nil
     }
@@ -629,14 +629,14 @@ extension BTXSortedBag {
     ///
     /// - Complexity: O(log(`count`))
     @discardableResult
-    public mutating func remove(_ member: Element) -> Element? {
+    mutating func remove(_ member: Element) -> Element? {
         return tree.remove(member, at: .first)?.0
     }
 
     /// Remove all instances of `member` from the bag.
     ///
     /// - Complexity: O(log(`count`))
-    public mutating func removeAll(_ member: Element) {
+    mutating func removeAll(_ member: Element) {
         guard let endOffset = tree.offset(forKey: member, choosing: .last) else { return }
         tree.withCursor(onKey: member, choosing: .first) { cursor in
             cursor.remove(1 + endOffset - cursor.offset)
@@ -647,7 +647,7 @@ extension BTXSortedBag {
     ///
     /// - Complexity: O(log(`count`))
     @discardableResult
-    public mutating func remove(at index: Index) -> Element {
+    mutating func remove(at index: Index) -> Element {
         return tree.remove(at: index).0
     }
 
@@ -655,7 +655,7 @@ extension BTXSortedBag {
     ///
     /// - Complexity: O(log(`count`))
     @discardableResult
-    public mutating func remove(atOffset offset: Int) -> Element {
+    mutating func remove(atOffset offset: Int) -> Element {
         return tree.remove(atOffset: offset).0
     }
 
@@ -679,7 +679,7 @@ extension BTXSortedBag {
     ///
     /// - Complexity: O(log(`count`))
     @discardableResult
-    public mutating func popFirst() -> Element? {
+    mutating func popFirst() -> Element? {
         return tree.popFirst()?.0
     }
 
@@ -702,12 +702,12 @@ extension BTXSortedBag {
     ///
     /// - Complexity: O(log(`count`))
     @discardableResult
-    public mutating func popLast() -> Element? {
+    mutating func popLast() -> Element? {
         return tree.popLast()?.0
     }
 
     /// Remove all members from this bag.
-    public mutating func removeAll() {
+    mutating func removeAll() {
         tree.removeAll()
     }
 }
@@ -720,7 +720,7 @@ extension BTXSortedBag {
     /// `SortedSet` already keeps its elements sorted, so this is equivalent to `Array(self)`.
     ///
     /// - Complexity: O(`count`)
-    public func sorted() -> [Element] {
+    func sorted() -> [Element] {
         // The bag is already sorted.
         return Array(self)
     }
@@ -741,7 +741,7 @@ extension BTXSortedBag {
     /// - Complexity:
     ///    - O(`self.count` + `other.count`) in general.
     ///    - O(log(`self.count` + `other.count`)) if there are only a constant amount of interleaving element runs.
-    public func union(_ other: BTXSortedBag<Element>) -> BTXSortedBag<Element> {
+    func union(_ other: BTXSortedBag<Element>) -> BTXSortedBag<Element> {
         return BTXSortedBag(self.tree.union(other.tree, by: .countingMatches))
     }
 
@@ -754,7 +754,7 @@ extension BTXSortedBag {
     /// - Complexity:
     ///    - O(`self.count` + `other.count`) in general.
     ///    - O(log(`self.count` + `other.count`)) if there are only a constant amount of interleaving element runs.
-    public mutating func formUnion(_ other: BTXSortedBag<Element>) {
+    mutating func formUnion(_ other: BTXSortedBag<Element>) {
         self = self.union(other)
     }
 
@@ -768,7 +768,7 @@ extension BTXSortedBag {
     /// - Complexity:
     ///    - O(min(`self.count`, `other.count`)) in general.
     ///    - O(log(`self.count` + `other.count`)) if there are only a constant amount of interleaving element runs.
-    public func intersection(_ other: BTXSortedBag<Element>) -> BTXSortedBag<Element> {
+    func intersection(_ other: BTXSortedBag<Element>) -> BTXSortedBag<Element> {
         return BTXSortedBag(self.tree.intersection(other.tree, by: .countingMatches))
     }
 
@@ -782,7 +782,7 @@ extension BTXSortedBag {
     /// - Complexity:
     ///    - O(min(`self.count`, `other.count`)) in general.
     ///    - O(log(`self.count` + `other.count`)) if there are only a constant amount of interleaving element runs.
-    public mutating func formIntersection(_ other: BTXSortedBag<Element>) {
+    mutating func formIntersection(_ other: BTXSortedBag<Element>) {
         self = other.intersection(self)
     }
 
@@ -797,7 +797,7 @@ extension BTXSortedBag {
     /// - Complexity:
     ///    - O(min(`self.count`, `other.count`)) in general.
     ///    - O(log(`self.count` + `other.count`)) if there are only a constant amount of interleaving element runs.
-    public func subtracting(_ other: BTXSortedBag) -> BTXSortedBag {
+    func subtracting(_ other: BTXSortedBag) -> BTXSortedBag {
         return BTXSortedBag(self.tree.subtracting(other.tree, by: .countingMatches))
     }
 
@@ -812,7 +812,7 @@ extension BTXSortedBag {
     /// - Complexity:
     ///    - O(min(`self.count`, `other.count`)) in general.
     ///    - O(log(`self.count` + `other.count`)) if there are only a constant amount of interleaving element runs.
-    public mutating func subtract(_ other: BTXSortedBag) {
+    mutating func subtract(_ other: BTXSortedBag) {
         self = self.subtracting(other)
     }
 
@@ -827,7 +827,7 @@ extension BTXSortedBag {
     /// - Complexity:
     ///    - O(min(`self.count`, `other.count`)) in general.
     ///    - O(log(`self.count` + `other.count`)) if there are only a constant amount of interleaving element runs.
-    public func symmetricDifference(_ other: BTXSortedBag<Element>) -> BTXSortedBag<Element> {
+    func symmetricDifference(_ other: BTXSortedBag<Element>) -> BTXSortedBag<Element> {
         return BTXSortedBag(self.tree.symmetricDifference(other.tree, by: .countingMatches))
     }
 
@@ -840,7 +840,7 @@ extension BTXSortedBag {
     /// - Complexity:
     ///    - O(min(`self.count`, `other.count`)) in general.
     ///    - O(log(`self.count` + `other.count`)) if there are only a constant amount of interleaving element runs.
-    public mutating func formSymmetricDifference(_ other: BTXSortedBag<Element>) {
+    mutating func formSymmetricDifference(_ other: BTXSortedBag<Element>) {
         self = self.symmetricDifference(other)
     }
 }
@@ -851,7 +851,7 @@ extension BTXSortedBag {
     /// Return the count of elements in this bag that are in `range`.
     ///
     /// - Complexity: O(log(`self.count`))
-    public func count(elementsIn range: Range<Element>) -> Int {
+    func count(elementsIn range: Range<Element>) -> Int {
         var path = BTreeStrongPath(root: tree.root, key: range.lowerBound, choosing: .first)
         let lowerOffset = path.offset
         path.move(to: range.upperBound, choosing: .first)
@@ -861,7 +861,7 @@ extension BTXSortedBag {
     /// Return the count of elements in this bag that are in `range`.
     ///
     /// - Complexity: O(log(`self.count`))
-    public func count(elementsIn range: ClosedRange<Element>) -> Int {
+    func count(elementsIn range: ClosedRange<Element>) -> Int {
         var path = BTreeStrongPath(root: tree.root, key: range.lowerBound, choosing: .first)
         let lowerOffset = path.offset
         path.move(to: range.upperBound, choosing: .after)
@@ -871,35 +871,35 @@ extension BTXSortedBag {
     /// Return a bag consisting of all members in `self` that are also in `range`.
     ///
     /// - Complexity: O(log(`self.count`))
-    public func intersection(elementsIn range: Range<Element>) -> BTXSortedBag<Element> {
+    func intersection(elementsIn range: Range<Element>) -> BTXSortedBag<Element> {
         return self.suffix(from: range.lowerBound).prefix(upTo: range.upperBound)
     }
 
     /// Return a bag consisting of all members in `self` that are also in `range`.
     ///
     /// - Complexity: O(log(`self.count`))
-    public func intersection(elementsIn range: ClosedRange<Element>) -> BTXSortedBag<Element> {
+    func intersection(elementsIn range: ClosedRange<Element>) -> BTXSortedBag<Element> {
         return self.suffix(from: range.lowerBound).prefix(through: range.upperBound)
     }
 
     /// Remove all members from this bag that are not included in `range`.
     ///
     /// - Complexity: O(log(`self.count`))
-    public mutating func formIntersection(elementsIn range: Range<Element>) {
+    mutating func formIntersection(elementsIn range: Range<Element>) {
         self = self.intersection(elementsIn: range)
     }
 
     /// Remove all members from this bag that are not included in `range`.
     ///
     /// - Complexity: O(log(`self.count`))
-    public mutating func formIntersection(elementsIn range: ClosedRange<Element>) {
+    mutating func formIntersection(elementsIn range: ClosedRange<Element>) {
         self = self.intersection(elementsIn: range)
     }
 
     /// Remove all elements in `range` from this bag.
     ///
     /// - Complexity: O(log(`self.count`))
-    public mutating func subtract(elementsIn range: Range<Element>) {
+    mutating func subtract(elementsIn range: Range<Element>) {
         tree.withCursor(onKey: range.upperBound, choosing: .first) { cursor in
             let upperOffset = cursor.offset
             cursor.move(to: range.lowerBound, choosing: .first)
@@ -910,7 +910,7 @@ extension BTXSortedBag {
     /// Remove all elements in `range` from this bag.
     ///
     /// - Complexity: O(log(`self.count`))
-    public mutating func subtract(elementsIn range: ClosedRange<Element>) {
+    mutating func subtract(elementsIn range: ClosedRange<Element>) {
         tree.withCursor(onKey: range.upperBound, choosing: .after) { cursor in
             let upperOffset = cursor.offset
             cursor.move(to: range.lowerBound, choosing: .first)
@@ -921,7 +921,7 @@ extension BTXSortedBag {
     /// Return a bag containing those members of this bag that aren't also included in `range`.
     ///
     /// - Complexity: O(log(`self.count`))
-    public mutating func subtracting(elementsIn range: Range<Element>) -> BTXSortedBag<Element> {
+    mutating func subtracting(elementsIn range: Range<Element>) -> BTXSortedBag<Element> {
         var copy = self
         copy.subtract(elementsIn: range)
         return copy
@@ -930,7 +930,7 @@ extension BTXSortedBag {
     /// Return a bag containing those members of this bag that aren't also included in `range`.
     ///
     /// - Complexity: O(log(`self.count`))
-    public mutating func subtracting(elementsIn range: ClosedRange<Element>) -> BTXSortedBag<Element> {
+    mutating func subtracting(elementsIn range: ClosedRange<Element>) -> BTXSortedBag<Element> {
         var copy = self
         copy.subtract(elementsIn: range)
         return copy
@@ -945,7 +945,7 @@ extension BTXSortedBag where Element: Strideable {
     /// For a negative `delta`, this shifts elements to the left, removing any elements in the range `start + delta ..< start` that were previously in the bag.
     ///
     /// - Complexity: O(`self.count`). The elements are modified in place.
-    public mutating func shift(startingAt start: Element, by delta: Element.Stride) {
+    mutating func shift(startingAt start: Element, by delta: Element.Stride) {
         guard delta != 0 else { return }
         tree.withCursor(onKey: start, choosing: .first) { cursor in
             if delta < 0 {
@@ -967,7 +967,7 @@ extension BTXSortedBag where Element: Strideable {
     ///
     /// - Requires: `start == self.startIndex || self[self.index(before: startIndex)] <= self[index] + delta
     /// - Complexity: O(`self.count`). The elements are modified in place.
-    public mutating func shift(startingAt start: Index, by delta: Element.Stride) {
+    mutating func shift(startingAt start: Index, by delta: Element.Stride) {
         guard delta != 0, tree.offset(of: start) != count else { return }
         tree.withCursor(at: start) { cursor in
             if delta < 0 && !cursor.isAtStart {

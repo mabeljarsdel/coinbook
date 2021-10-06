@@ -2,7 +2,8 @@ import Foundation
 import UIKit
 
 extension Shell {
-    static func recentTradeList() -> UIViewController & RecentTradeListShellIO {
+    @available(*, deprecated)
+    static func recentTradeList1() -> UIViewController & RecentTradeList1IO {
         let cellSize = NSCollectionLayoutSize(
             widthDimension: .fractionalWidth(1),
             heightDimension: .absolute(44))
@@ -13,15 +14,17 @@ extension Shell {
                     subitems: [
                         NSCollectionLayoutItem(layoutSize: cellSize),
                     ])))
-        return RecentTradeListShellImpl(collectionViewLayout: layout)
+        return RecentTradeList1Impl(collectionViewLayout: layout)
     }
 }
-protocol RecentTradeListShellIO {
+@available(*, deprecated)
+protocol RecentTradeList1IO {
     func process(_ x:Rendition)
     func dispatch(_ fx:@escaping(Action) -> Void)
 }
 
-private final class RecentTradeListShellImpl: UICollectionViewController, RecentTradeListShellIO {
+@available(*, deprecated)
+private final class RecentTradeList1Impl: UICollectionViewController, RecentTradeList1IO {
     private var state = State()
     private var broadcast = noop as (Action) -> Void
     func process(_ x:Rendition) {

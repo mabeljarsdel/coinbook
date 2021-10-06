@@ -7,8 +7,14 @@ extension Shell {
     }
 }
 protocol RecentTradeList2IO {
-    func process(_ x:Rendition)
-    func dispatch(_ fx:@escaping(Action) -> Void)
+    typealias Command = RecentTradeList2Command
+    typealias Report = Action
+    func process(_ x:Command)
+    func dispatch(_ fx:@escaping(Report) -> Void)
+}
+enum RecentTradeList2Command {
+    case renderState(State)
+    case setOrigin(Date)
 }
 
 
@@ -17,32 +23,47 @@ protocol RecentTradeList2IO {
 private let rowHeight = CGFloat(44)
 
 private struct TradeListRendition {
-    var state = State()
+    var trades = [State.Trade]()
     func containerHeight() -> CGFloat {
-        CGFloat(state.trades.count) * rowHeight
+        CGFloat(trades.count) * rowHeight
     }
 }
 
 private final class RecentTradeList2Impl: UIView, RecentTradeList2IO {
-    private let scrollView = UIScrollView()
-    private let containerView = UIView()
-    private let tableView = TableView()
+    private let stack = UIStackView()
+    private let head = Shell.recentTradeListHead()
+    private let separator = Shell.AutoLayout.horizontalLine(height: 1)
+    private let scroll = UIScrollView()
+    private let table = TableView()
     private var isInstalled = false
     private var rendition = TradeListRendition()
-    func process(_ x: Rendition) {
-        guard let state = x.state else { return }
+    private var origin = Date.distantPast
+    func process(_ x:RecentTradeList2Command) {
         if !isInstalled {
             isInstalled = true
-            addSubview(scrollView)
-            scrollView.isScrollEnabled = true
-            scrollView.alwaysBounceVertical = true
-            scrollView.addSubview(containerView)
-            containerView.addSubview(tableView)
+            addSubview(stack)
+            stack.translatesAutoresizingMaskIntoConstraints = false
+            stack.fillSuperview()
+            stack.axis = .vertical
+            stack.addArrangedSubview(head)
+            stack.addArrangedSubview(separator)
+            stack.addArrangedSubview(scroll)
+            scroll.isScrollEnabled = true
+            scroll.alwaysBounceVertical = true
+            scroll.addSubview(table)
         }
-        rendition = TradeListRendition(state: state)
+        switch x {
+        case let .renderState(x):
+            rendition = TradeListRendition(trades: x.trades)
+        case let .setOrigin(x):
+            origin = x
+        }
+        rendition.trades = rendition.trades.filter({ x in x.time > origin })
+        
+        /// Remove older trandes.
         CATransaction.begin()
         CATransaction.setAnimationDuration(0.06)
-        tableView.render(rendition)
+        table.render(rendition)
         CATransaction.commit()
         setNeedsLayout()
     }
@@ -51,11 +72,9 @@ private final class RecentTradeList2Impl: UIView, RecentTradeList2IO {
     
     override func layoutSubviews() {
         super.layoutSubviews()
-        if scrollView.frame != bounds { scrollView.frame = bounds }
         let h = rendition.containerHeight()
-        scrollView.contentSize.height = h
-        containerView.frame.size = CGSize(width: bounds.width, height: h)
-        tableView.frame = containerView.bounds
+        scroll.contentSize.height = h
+        table.frame.size = CGSize(width: bounds.width, height: h)
     }
 }
 
@@ -65,13 +84,13 @@ private final class TableView: UIView {
     func render(_ newRendition:TradeListRendition) {
         let old = rendition
         let new = newRendition
-        let oldIDSet = Set(old.state.trades.map { x in x.id })
-        let newIDSet = Set(new.state.trades.map { x in x.id })
+        let oldIDSet = Set(old.trades.map { x in x.id })
+        let newIDSet = Set(new.trades.map { x in x.id })
         let removedIDSet = oldIDSet.subtracting(newIDSet)
         
         typealias ID = String
         let oldRowViews = rowViews
-        let idOldRowViewMap = Dictionary(uniqueKeysWithValues: zip(old.state.trades.lazy.map({ x in x.id }), oldRowViews))
+        let idOldRowViewMap = Dictionary(uniqueKeysWithValues: zip(old.trades.lazy.map({ x in x.id }), oldRowViews))
         /// Remove removed row views.
         for id in removedIDSet {
             if let rowView = idOldRowViewMap[id] {
@@ -88,13 +107,13 @@ private final class TableView: UIView {
             }
             return rowView
         }
-        let newRowViews = new.state.trades.map({ x in idOldRowViewMap[x.id] ?? makeAndAddRowView(x.side) })
+        let newRowViews = new.trades.map({ x in idOldRowViewMap[x.id] ?? makeAndAddRowView(x.side) })
         rowViews = newRowViews
         
         /// Replace rendition.
         rendition = newRendition
         for i in rowViews.indices {
-            let rowData = new.state.trades[i]
+            let rowData = new.trades[i]
             let rowLayer = rowViews[i]
             rowLayer.render(rowData)
         }
