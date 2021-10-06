@@ -294,7 +294,7 @@ private final class FillView: UIView {
     override func layoutSubviews() {
         super.layoutSubviews()
         CATransaction.begin()
-        CATransaction.setDisableActions(true)
+        CATransaction.setAnimationDuration(0.1)
         barLayer.frame = isHorizontallyReversed
             ? layer.bounds.divided(atDistance: layer.bounds.width * fillRate, from: .maxXEdge).slice
             : layer.bounds.divided(atDistance: layer.bounds.width * fillRate, from: .minXEdge).slice
