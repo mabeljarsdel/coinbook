@@ -3,16 +3,13 @@ CoinBook
 Hoon H., 2021.
 
 
-
-Manually Implemented Actors
----------------------------
-You'll see that many of objects are implemented in same pattern.
-A serial GCDQ, `queue/dispatch` functions, and running all commands/reports in the GCDQ.
-This is a sort of manually implemented actor model.
-Close resemblence of Swift actor model introduced in Swift 5.5.
-The biggest difference is lack of compile-time memory isolation and async/await. 
-We cannot describe program in imperative way due to lack of async-stream.
-Instead, everythig has to be described in event-based model. 
+Clean Actor Model Architecture
+------------------------------
+This app demonstrates how to construct clean architecture with actor model.
+Components are implemented as actors (or pseudo actors for UIKit components).
+Therefore all of their implementations are isolated by default.
+Components communicates only with defined interfaces.
+For actor model, datastructures of messages are the interfaces.
 
 
 

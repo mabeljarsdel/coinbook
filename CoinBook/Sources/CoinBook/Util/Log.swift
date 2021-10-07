@@ -14,14 +14,13 @@ func debugLog<T>(_ x:@autoclosure() -> T) {
 
 /// Placeholder for debug-logging facility.
 func verboseLog<T>(_ x:@autoclosure() -> T) {
-    #if DEBUG
-//    print(x())
+    #if VERBOSE
     #endif
 }
 
 /// Placeholder for debug-logging facility.
 func verboseDump<T>(_ x:@autoclosure() -> T) {
-    #if DEBUG
-    dump(x())
+    #if VERBOSE
+//    dump(x())
     #endif
 }

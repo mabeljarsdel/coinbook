@@ -12,7 +12,7 @@ final class StateOrderPushTests: XCTestCase {
         for line in sampleCodeLine {
             guard !line.isEmpty else { continue }
             let d = line.data(using: .utf8) ?? Data()
-            let m = try jsondec.decode(BitMEXChannel.Report.self, from: d)
+            let m = try jsondec.decode(NABitMEXChannel.Report.self, from: d)
             switch m {
             case let .table(x):
                 switch x.rows {

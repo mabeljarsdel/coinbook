@@ -1,14 +1,36 @@
 import Foundation
 import UIKit
 
+@MainActor
 final class HomeTab: UIView {
     private let stack = UIStackView()
     private let orderBookButton = TabButton()
     private let recentTradeListButton = TabButton()
     private var isInstalled = false
-    private var broadcast = noop as (Action) -> Void
-    func dispatch(_ fx:@escaping(Action) -> Void) {
-        broadcast = fx
+    private var broadcast = Chan<Action>()
+    
+    func run() -> AsyncStream<Action> {
+        AsyncStream { cont in
+            Task {
+                for await x in broadcast {
+                    cont.yield(x)
+                }
+            }
+            Task {
+                for await _ in orderBookButton.run() {
+                    orderBookButton.setSelected(true)
+                    recentTradeListButton.setSelected(false)
+                    await broadcast <- .navigate(.orderBook)
+                }
+            }
+            Task {
+                for await _ in recentTradeListButton.run() {
+                    orderBookButton.setSelected(false)
+                    recentTradeListButton.setSelected(true)
+                    await broadcast <- .navigate(.recentTrades)
+                }
+            }
+        }
     }
     override func didMoveToSuperview() {
         super.didMoveToSuperview()
@@ -20,22 +42,11 @@ final class HomeTab: UIView {
             stack.distribution = .fillEqually
             stack.addArrangedSubview(orderBookButton)
             stack.addArrangedSubview(recentTradeListButton)
+            orderBookButton.setSelected(true)
             orderBookButton.setLabel("Order Book")
-            orderBookButton.dispatch { [weak self] _ in self?.onOrderButtonTap() }
+            recentTradeListButton.setSelected(false)
             recentTradeListButton.setLabel("Recent Trades")
-            recentTradeListButton.dispatch { [weak self] _ in self?.onRecentTradeListButtonTap() }
-            onOrderButtonTap()
         }
-    }
-    private func onOrderButtonTap() {
-        orderBookButton.setSelected(true)
-        recentTradeListButton.setSelected(false)
-        broadcast(.navigate(.orderBook))
-    }
-    private func onRecentTradeListButtonTap() {
-        orderBookButton.setSelected(false)
-        recentTradeListButton.setSelected(true)
-        broadcast(.navigate(.recentTrades))
     }
 }
 
@@ -44,7 +55,18 @@ private final class TabButton: UIView {
     private let button = UIButton()
     private let line = Shell.AutoLayout.horizontalLine(height: 4, color: Shell.Constant.lineColor)
     private var isInstalled = false
-    private var broadcast = noop as (()) -> Void
+    private var broadcast = Chan<()>()
+    
+    func run() -> AsyncStream<()> {
+        AsyncStream { cont in
+            Task {
+                for await x in broadcast {
+                    cont.yield(x)
+                }
+            }
+        }
+    }
+    
     override func didMoveToSuperview() {
         super.didMoveToSuperview()
         if !isInstalled {
@@ -69,11 +91,10 @@ private final class TabButton: UIView {
         button.isSelected = x
         line.backgroundColor = x ? UIColor.systemTeal : Shell.Constant.lineColor
     }
-    func dispatch(_ fx:@escaping (()) -> Void) {
-        broadcast = fx
-    }
     @IBAction
     func onButtonTap(_:UIButton?) {
-        broadcast(())
+        Task() {
+            await broadcast <- ()
+        }
     }
 }

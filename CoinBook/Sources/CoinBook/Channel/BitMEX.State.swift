@@ -1,43 +1,6 @@
 import Foundation
 import JJLISO8601DateFormatter
 
-extension BitMEX.OrderBook {
-    func scanCoreState() throws -> State.OrderBook {
-        let n = 20
-        var result = State.OrderBook()
-        for buy in buys.suffix(n) {
-            guard let record = table[buy.id] else { throw Issue.bitMEX(.missingRecordForIDOnScanningTops(buy.id)) }
-            result.buys.append(State.Order(price: buy.price, quantity: record.size))
-        }
-        for sell in sells.prefix(n) {
-            guard let record = table[sell.id] else { throw Issue.bitMEX(.missingRecordForIDOnScanningTops(sell.id)) }
-            result.sells.append(State.Order(price: sell.price, quantity: record.size))
-        }
-        return result
-    }
-}
-extension BitMEX.RecentTradeList {
-    func scanCoreState() -> [State.Trade] {
-        table.map({ x in State.Trade(
-            id: x.trade.trdMatchID ?? "",
-            price: x.trade.price ?? -1,
-            quantity: x.trade.size ?? -1,
-            side: State.TradeSide(rawValue: x.trade.side ?? ""),
-            time: rfc3338Form.date(from: x.trade.timestamp) ?? .distantPast) })
-    }
-}
-private let rfc3338Form = {
-    let x = JJLISO8601DateFormatter()
-    x.formatOptions = [
-        .withInternetDateTime,
-        .withFullDate,
-        .withFullTime,
-        .withFractionalSeconds,
-        .withTimeZone,
-    ]
-    return x
-}() as JJLISO8601DateFormatter
-
 extension BitMEX {
     struct State {
         var orderBook = OrderBook()
@@ -73,7 +36,7 @@ extension BitMEX {
         private var table = BTMap<ID,Record>()
         private var buys = BTSortedSet<PriceSortedIndex>()
         private var sells = BTSortedSet<PriceSortedIndex>()
-        /// This will be globally unique as `id` will be counted in equality and comparison operations,
+        /// This will globally unique as `id` will be counted in equality and comparison operations,
         private struct PriceSortedIndex: Equatable, Comparable {
             var price: Double
             var id: ID
@@ -171,3 +134,52 @@ extension BitMEX {
         }
     }
 }
+
+
+
+
+
+
+extension BitMEX.State {
+    func scanCoreState() throws -> State {
+        State(
+            orderBook: try orderBook.scanCoreState(),
+            trades: recentTradeList.scanCoreState())
+    }
+}
+extension BitMEX.OrderBook {
+    func scanCoreState() throws -> State.OrderBook {
+        let n = 20
+        var result = State.OrderBook()
+        for buy in buys.suffix(n) {
+            guard let record = table[buy.id] else { throw Issue.bitMEX(.missingRecordForIDOnScanningTops(buy.id)) }
+            result.buys.append(State.Order(price: buy.price, quantity: record.size))
+        }
+        for sell in sells.prefix(n) {
+            guard let record = table[sell.id] else { throw Issue.bitMEX(.missingRecordForIDOnScanningTops(sell.id)) }
+            result.buys.append(State.Order(price: sell.price, quantity: record.size))
+        }
+        return result
+    }
+}
+extension BitMEX.RecentTradeList {
+    func scanCoreState() -> [State.Trade] {
+        table.map({ x in State.Trade(
+            id: x.trade.trdMatchID ?? "",
+            price: x.trade.price ?? -1,
+            quantity: x.trade.size ?? -1,
+            side: State.TradeSide(rawValue: x.trade.side ?? ""),
+            time: rfc3338Form.date(from: x.trade.timestamp) ?? .distantPast) })
+    }
+}
+private let rfc3338Form = {
+    let x = JJLISO8601DateFormatter()
+    x.formatOptions = [
+        .withInternetDateTime,
+        .withFullDate,
+        .withFullTime,
+        .withFractionalSeconds,
+        .withTimeZone,
+    ]
+    return x
+}() as JJLISO8601DateFormatter

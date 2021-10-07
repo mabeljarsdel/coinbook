@@ -1,5 +1,5 @@
 CoinBook
 ========
 
-Code for CoinBook.
+Actual code for CoinBook.
 

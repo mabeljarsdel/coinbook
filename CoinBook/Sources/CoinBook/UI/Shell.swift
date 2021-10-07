@@ -1,27 +1,17 @@
 import Foundation
 import UIKit
 
-/// Root of UI.
-extension Shell {
-    typealias Command = Rendition
-    typealias Report = Action
-    func queue(_ cmd:Command) {
-        DispatchQueue.main.async { [weak self] in self?.process(cmd) }
-    }
-    func dispatch(_ fx: @escaping (Report) -> Void) {
-        broadcast = fx
-    }
-}
+@MainActor
 final class Shell {
     private let window = UIWindow(frame: UIScreen.main.bounds)
     private let home = Shell.home2()
-    private var broadcast = noop as (Report) -> Void
+    private let broadcast = Chan<Action>()
     private var renderCount = 0
+    
     init() {
         window.backgroundColor = .systemBackground
         window.makeKeyAndVisible()
         window.rootViewController = home
-        home.dispatch { [weak self] x in self?.broadcast(x) }
         
         #if DEBUG
         Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { [weak self] _ in
@@ -30,12 +20,23 @@ final class Shell {
         }
         #endif
     }
-}
-
-private extension Shell {
-    func process(_ cmd:Command) {
-        assertGCDQ(.main)
-        home.process(cmd)
-        renderCount += 1
+    
+    func render(_ x:Rendition) {
+        home.process(x)
+    }
+    func warn(_ err:Error) {
+        home.process(.warning(err))
+    }
+    func run() -> AsyncStream<Report> {
+        AsyncStream(Report.self) { cont in
+            Task { [home] in
+                for await x in home.run() {
+                    cont.yield(.action(x))
+                }
+            }
+        }
+    }
+    enum Report {
+        case action(Action)
     }
 }

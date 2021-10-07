@@ -6,11 +6,12 @@ extension Shell {
         RecentTradeList2Impl()
     }
 }
+@MainActor
 protocol RecentTradeList2IO {
     typealias Command = RecentTradeList2Command
     typealias Report = Action
     func process(_ x:Command)
-    func dispatch(_ fx:@escaping(Report) -> Void)
+    func run() -> AsyncStream<Report>
 }
 enum RecentTradeList2Command {
     case renderState(State)
@@ -30,6 +31,7 @@ private struct TradeListRendition {
 }
 
 private final class RecentTradeList2Impl: UIView, RecentTradeList2IO {
+    private let broadcast = Chan<Action>()
     private let stack = UIStackView()
     private let head = Shell.recentTradeListHead()
     private let separator = Shell.AutoLayout.horizontalLine(height: 1)
@@ -64,14 +66,20 @@ private final class RecentTradeList2Impl: UIView, RecentTradeList2IO {
         table.render(rendition)
         setNeedsLayout()
     }
-    func dispatch(_ fx: @escaping (Action) -> Void) {
-    }
-    
     override func layoutSubviews() {
         super.layoutSubviews()
         let h = rendition.containerHeight()
         scroll.contentSize.height = h
         table.frame.size = CGSize(width: bounds.width, height: h)
+    }
+    func run() -> AsyncStream<Report> {
+        AsyncStream { cont in
+            Task {
+                for await x in broadcast {
+                    cont.yield(x)
+                }
+            }
+        }
     }
 }
 

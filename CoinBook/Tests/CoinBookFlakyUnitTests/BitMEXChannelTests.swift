@@ -6,7 +6,7 @@ final class BitMEXChannelTests: XCTestCase {
     func testOrderAndTradeMessageReceiving() throws {
         var exp1 = expectation(description: "Receiving order message from websocket.") as XCTestExpectation?
         var exp2 = expectation(description: "Receiving trade message from websocket.") as XCTestExpectation?
-        let chan = try BitMEXChannel()
+        let chan = try NABitMEXChannel()
         chan.dispatch { report in
             switch report {
             case .info:
@@ -38,7 +38,7 @@ final class BitMEXChannelTests: XCTestCase {
     func testManyMessageDecoding() throws {
         var msgcount = 0
         var exp = expectation(description: "Receiving & decoding 1000 messages from websocket.") as XCTestExpectation?
-        let chan = try BitMEXChannel()
+        let chan = try NABitMEXChannel()
         chan.dispatch { report in
             switch report {
             case .info:

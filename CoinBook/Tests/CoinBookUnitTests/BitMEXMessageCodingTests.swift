@@ -11,7 +11,7 @@ final class BitMEXTests: XCTestCase {
             do {
                 print("DECODING:")
                 print(m)
-                let j = try jc.decode(BitMEXChannel.Report.self, from: d)
+                let j = try jc.decode(NABitMEXChannel.Report.self, from: d)
                 dump(j)
             }
             catch let err {

@@ -6,11 +6,12 @@ extension Shell {
         Home2Impl()
     }
 }
+@MainActor
 protocol Home2IO {
     typealias Command = Rendition
     typealias Report = Action
     func process(_ x:Command)
-    func dispatch(_ fx:@escaping(Report) -> Void)
+    func run() -> AsyncStream<Action>
 }
 
 private final class Home2Impl: UIViewController, Home2IO {
@@ -41,9 +42,6 @@ private final class Home2Impl: UIViewController, Home2IO {
             recentTradeList.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             recentTradeList.bottomAnchor.constraint(equalTo: view.bottomAnchor),
         ])
-        tabbar.dispatch { [weak self] x in self?.broadcast(x) }
-        orderBook.dispatch { [weak self] x in self?.broadcast(x) }
-        recentTradeList.dispatch { [weak self] x in self?.broadcast(x) }
     }
     func process(_ x:Rendition) {
         switch x {
@@ -66,10 +64,24 @@ private final class Home2Impl: UIViewController, Home2IO {
             break
         }
     }
-    func dispatch(_ fx: @escaping (Action) -> Void) {
-        broadcast = fx
-        orderBook.dispatch { [weak self] x in self?.broadcast(x) }
-        recentTradeList.dispatch { [weak self] x in self?.broadcast(x) }
+    func run() -> AsyncStream<Action> {
+        AsyncStream { [orderBook] cont in
+            Task {
+                for await x in tabbar.run() {
+                    cont.yield(x)
+                }
+            }
+            Task {
+                for await x in orderBook.run() {
+                    cont.yield(x)
+                }
+            }
+            Task {
+                for await x in recentTradeList.run() {
+                    cont.yield(x)
+                }
+            }
+        }
     }
 }
 

@@ -6,11 +6,12 @@ extension Shell {
         return OrderBook3Impl()
     }
 }
+@MainActor
 protocol OrderBook3IO {
     typealias Command = State
     typealias Report = Action
     func process(_ x:Command)
-    func dispatch(_ fx:@escaping(Report) -> Void)
+    func run() -> AsyncStream<Report>
 }
 
 
@@ -98,7 +99,7 @@ private final class OrderBook3Impl: UIView, OrderBook3IO, UIScrollViewDelegate {
     private let scroll = UIScrollView()
     private let table = OrderBookTableView()
     private let vsync = VSyncThrottle<OrderBookRendition>()
-    private var broadcast = noop as (Action) -> Void
+    private var broadcast = Chan<Action>()
     private var isInstalled = false
     private var rendition = OrderBookRendition()
     override func layoutSubviews() {
@@ -139,8 +140,14 @@ private final class OrderBook3Impl: UIView, OrderBook3IO, UIScrollViewDelegate {
         table.render(rendition, visibleBounds: vb)
         scroll.contentSize.height = CGFloat(rendition.maxRowCount()) * CGFloat(rowHeight)
     }
-    func dispatch(_ fx: @escaping (Action) -> Void) {
-        broadcast = fx
+    func run() -> AsyncStream<Report> {
+        AsyncStream { [broadcast] cont in
+            Task {
+                for await x in broadcast {
+                    cont.yield(x)
+                }
+            }
+        }
     }
 }
 

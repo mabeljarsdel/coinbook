@@ -3,53 +3,42 @@ import JJLISO8601DateFormatter
 
 /// The core of app.
 /// - Processes incoming actions, perform I/O, and update state.
-final class Core {
-    typealias Command = Action
-    typealias Report = Rendition
-    
-    private let processq = DispatchQueue.main
-    private var broadcast = noop as (Report) -> Void
-    
+actor Core {
     private let bitmex = BitMEX()
-    private var state = State()
+    private let action = Chan<Action>()
     
-    init() {
-        bitmex.dispatch { [weak self] x in self?.processq.async { self?.processBitMEXReport(x) } }
-        processq.async { [weak self] in self?.bootstrap() }
+    init() async {
+        Task { await bitmex.queue(.reboot) }
     }
-    func queue(_ cmd:Command) {
-        processq.async { [weak self] in self?.processAction(cmd) }
+    func execute(_ x:Action) async {
+        await action <- x
     }
-    func dispatch(_ fx: @escaping (Report) -> Void) {
-        processq.async { [weak self] in self?.broadcast = fx }
-    }
-    
-    private func bootstrap() {
-        assertGCDQ(processq)
-        bitmex.queue(.bootstrap)
-    }
-    private func processAction(_ cmd:Command) {
-        assertGCDQ(processq)
-        switch cmd {
-        case let .navigate(x):
-            broadcast(.navigate(x))
+    func run() -> AsyncStream<Report> {
+        AsyncStream(Report.self) { [action] continuation in
+            Task {
+                for try await x in action {
+                    switch x {
+                    case let .navigate(x):
+                        continuation.yield(.rendition(.navigate(x)))
+                    }
+                }
+            }
+            Task { [bitmex] in
+                do {
+                    for try await x in await bitmex.run() {
+                        switch x {
+                        case let .state(x): continuation.yield(.rendition(.state(try x.scanCoreState())))
+                        case let .error(x): continuation.yield(.rendition(.warning(x)))
+                        }
+                    }
+                }
+                catch let err {
+                    continuation.yield(.rendition(.warning(err)))
+                }
+            }
         }
     }
-    private func processBitMEXReport(_ report:BitMEX.Report) {
-        assertGCDQ(processq)
-        switch report {
-        case let .state(x):
-            do {
-                state.orderBook = try x.orderBook.scanCoreState()
-                state.trades = x.recentTradeList.scanCoreState()
-                broadcast(.state(state))
-            }
-            catch let err {
-                broadcast(.warning(err))
-            }
-        case let .error(err):
-            log(err)
-            broadcast(.warning(err))
-        }
+    enum Report {
+        case rendition(Rendition)
     }
 }

@@ -1,7 +1,7 @@
 import Foundation
 import Starscream
 
-final class RawChannel: NSObject, WebSocketDelegate {
+final class NonActorRawChannel: NSObject, WebSocketDelegate {
     enum Command {
         case sendText(String)
         case sendData(Data)

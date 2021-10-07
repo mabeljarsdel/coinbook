@@ -5,7 +5,7 @@ import XCTest
 final class RawChannelTests: XCTestCase {
     func testWelcome() throws {
         let exp = expectation(description: "Receiving from websocket.")
-        let ch = try RawChannel(address: "wss://www.bitmex.com/realtime")
+        let ch = try NonActorRawChannel(address: "wss://www.bitmex.com/realtime")
         let jc = JSONDecoder()
         //{
         //    "info":"Welcome to the BitMEX Realtime API.",
@@ -47,7 +47,7 @@ final class RawChannelTests: XCTestCase {
     }
     func testSubscription() throws {
         let exp = expectation(description: "Receiving from websocket.")
-        let ch = try RawChannel(address: "wss://www.bitmex.com/realtime")
+        let ch = try NonActorRawChannel(address: "wss://www.bitmex.com/realtime")
         ch.dispatch { report in
             switch report {
             case let .receiveText(s):

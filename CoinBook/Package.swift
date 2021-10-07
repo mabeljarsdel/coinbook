@@ -6,7 +6,7 @@ import PackageDescription
 let package = Package(
     name: "CoinBook",
     platforms: [
-        .iOS(.v14),
+        .iOS(.v15),
     ],
     products: [
         .library(name: "CoinBook", targets: ["CoinBook"]),
@@ -17,7 +17,6 @@ let package = Package(
     ],
     targets: [
         .target(name: "CoinBook", dependencies: ["Starscream", "JJLISO8601DateFormatter"]),
-//        .target(name: "BTreeForCoinBook"),
         .testTarget(name: "CoinBookUnitTests", dependencies: ["CoinBook"]),
         /// Collection of unit tests that can may fail unexpectedly.
         /// These tests depends on external I/O, therefore cannot be tested deterministic.
