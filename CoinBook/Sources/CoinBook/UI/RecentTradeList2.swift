@@ -60,11 +60,8 @@ private final class RecentTradeList2Impl: UIView, RecentTradeList2IO {
         }
         rendition.trades = rendition.trades.filter({ x in x.time > origin })
         
-        /// Remove older trandes.
-        CATransaction.begin()
-        CATransaction.setAnimationDuration(0.06)
+        /// Remove older trades.
         table.render(rendition)
-        CATransaction.commit()
         setNeedsLayout()
     }
     func dispatch(_ fx: @escaping (Action) -> Void) {
