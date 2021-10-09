@@ -39,7 +39,7 @@ final class VSyncThrottle<T>: NSObject {
         displink?.remove(from: .main, forMode: .common)
         displink?.invalidate()
     }
-    
+
     private func startTimer() {
         assertGCDQ(processq)
         displink?.isPaused = false

@@ -2,21 +2,20 @@ public actor Root {
     public init() async {
         let core = await Core()
         let shell = await Shell()
-        await shell.render(Rendition.navigate(.orderBook))
+        let actions = Chan<Action>()
+        let renditions = Chan<Rendition>()
+        await renditions <- Rendition.navigate(.orderBook)
         Task {
-            for await report in await core.run() {
+            for await report in await core.run(actions: actions) {
                 switch report {
                 case let .rendition(r):
-                    await shell.render(r)
+                    await renditions <- r
                 }
             }
         }
         Task {
-            for await report in await shell.run() {
-                switch report {
-                case let .action(x):
-                    await core.execute(x)
-                }
+            for await x in await shell.run(with: renditions) {
+                await actions <- x
             }
         }
     }
