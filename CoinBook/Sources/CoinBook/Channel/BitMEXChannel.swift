@@ -1,10 +1,11 @@
 import Foundation
+import ZippyJSON
 
 actor BitMEXChannel {
     private let rawchan: RawChannel
     private let cmdchan = Chan<Command>()
     private let jsonenc = JSONEncoder()
-    private let jsondec = JSONDecoder()
+    private let jsondec = ZippyJSONDecoder()
     init() throws {
         rawchan = try RawChannel(address: "wss://www.bitmex.com/realtime")
     }
