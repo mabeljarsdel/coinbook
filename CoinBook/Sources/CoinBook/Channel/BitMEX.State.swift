@@ -157,7 +157,7 @@ extension BitMEX.OrderBook {
         }
         for sell in sells.prefix(n) {
             guard let record = table[sell.id] else { throw Issue.bitMEX(.missingRecordForIDOnScanningTops(sell.id)) }
-            result.buys.append(State.Order(price: sell.price, quantity: record.size))
+            result.sells.append(State.Order(price: sell.price, quantity: record.size))
         }
         return result
     }
