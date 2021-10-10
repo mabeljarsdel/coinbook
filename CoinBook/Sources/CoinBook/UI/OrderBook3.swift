@@ -114,6 +114,7 @@ private final class OrderBook3Impl: UIView, OrderBook3IO, UIScrollViewDelegate {
         table.frame = f
     }
     func process(_ x:State) {
+        perfLog("UI recv: \(x.orderBook.buys.count + x.orderBook.sells.count) items")
         if !isInstalled {
             isInstalled = true
             addSubview(stack)

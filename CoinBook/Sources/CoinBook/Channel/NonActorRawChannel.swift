@@ -11,7 +11,7 @@ final class NonActorRawChannel: NSObject, WebSocketDelegate {
         case receiveData(Data)
     }
     
-    private let processq = DispatchQueue(label: "RawWebSocketChannel")
+    private let processq = DispatchQueue(label: "RawWebSocketChannel", qos: .background)
     private var cast = noop as (Report) -> Void
     
     private let sock: WebSocket
@@ -88,7 +88,7 @@ final class NonActorRawChannel: NSObject, WebSocketDelegate {
         verboseLog((#function, socket, error))
     }
     func websocketDidReceiveMessage(socket: WebSocketClient, text: String) {
-        verboseLog((#function, socket, text))
+        perfLog("\(text.utf8.count) bytes: \(text.prefix(50))")
         processq.async { [weak self] in self?.cast(.receiveText(text)) }
     }
     func websocketDidReceiveData(socket: WebSocketClient, data: Data) {

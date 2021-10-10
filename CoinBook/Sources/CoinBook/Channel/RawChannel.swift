@@ -20,6 +20,7 @@ actor RawChannel {
                 for try await report in narcReportChan {
                     switch report {
                     case let .receiveText(s):
+                        perfLog("\(s.prefix(50)) (\(s.utf8.count) bytes)")
                         continuation.yield(.receiveText(s))
                     case let .receiveData(d):
                         continuation.yield(.receiveData(d))

@@ -53,6 +53,7 @@ actor BitMEX {
                             await newchan.queue(.subscribe(topics: [.orderBookL2_XBTUSD, .trade_XBT_USD]))
                             Task { [weak self] in
                                 for try await report in await newchan.run() {
+                                    perfLog("recv from chan")
                                     guard let ss = self else { continue }
                                     guard let r = await ss.applyChannelReport(report) else { continue }
                                     switch r {

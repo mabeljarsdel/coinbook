@@ -1,11 +1,10 @@
 import Foundation
-import ZippyJSON
 
 actor BitMEXChannel {
     private let rawchan: RawChannel
     private let cmdchan = Chan<Command>()
     private let jsonenc = JSONEncoder()
-    private let jsondec = ZippyJSONDecoder()
+    private let jsondec = JSONDecoder()
     init() throws {
         rawchan = try RawChannel(address: "wss://www.bitmex.com/realtime")
     }
@@ -47,8 +46,12 @@ actor BitMEXChannel {
                         break
                     case let .receiveText(s):
                         do {
+                            perfLog("recv from raw-chan, start JSON decoding. (\(s.utf8.count) bytes)")
                             let d = s.data(using: .utf8) ?? Data()
+                            let start = Date()
                             let m = try jsondec.decode(Report.self, from: d)
+                            let end = Date()
+                            perfLog("recv from raw-chan, end JSON decoding.  (\(s.utf8.count) bytes, \(end.timeIntervalSince(start)) sec.)")
                             continuation.yield(m)
                         }
                         catch let err {

@@ -20,9 +20,10 @@ actor Core {
                 }
             }
         }
-        Task { [bitmex] in
+        Task(priority: .high) { [bitmex] in
             do {
                 for try await x in await bitmex.run() {
+                    perfLog("recv from bitmex")
                     switch x {
                     case let .state(x): await send <- .rendition(.state(try x.scanCoreState()))
                     case let .error(x): await send <- .rendition(.warning(x))
