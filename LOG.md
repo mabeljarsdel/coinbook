@@ -138,6 +138,20 @@ After refactoring to actor model and testing on iOS 15 devices,
 I no longer observe notable spikes or energy inefficiency.
 Though overall CPU usage has been increased somewhat, I think now is better.  
 
+For now items with largest relative cost are like this.
+
+    6.17 s   22.9%    0 s                        0x18717620e
+    4.92 s   18.3%    1.00 ms                                   OrderBookTableView.render(_:visibleBounds:)
+    854.00 ms    3.1%    0 s                       specialized BTXSortedSet.map<A>(_:)
+    762.00 ms    2.8%    0 s                       specialized BTXSortedSet.map<A>(_:)
+    501.00 ms    1.8%    0 s                       specialized BTXSortedSet.map<A>(_:)
+
+... and so on.
+Now rendering is the most contributor, and it's not easily optimizable.
+I clsoe this case here.
+
+
+
 
 
 
@@ -172,8 +186,11 @@ This is difficult to deal with because,
 It seems the point of the problem is **burst amount of data** rather than algorithms.
 But we have no control over the amount or shape of server feed.
 
-Note that after refactoring to actor model on iOS 15 devices, 
-I no longer get much visible spike. 
-Even in a few of spikes, JSON decoding is no longer the major cause.
+After refactoring to actor model and running on iOS 15, major constribution is like this.
 
-Therefore, closing this issue. 
+    8.00 ms   26.6%    0 s                              -[UIView(CALayerDelegate) drawLayer:inContext:]
+    6.00 ms   20.0%    0 s                                  OrderBookTableView.render(_:visibleBounds:)
+
+Bt the way, as Instruments is malfunction and doesn't show symbols properly.
+I need to reinvestigate this later.
+
