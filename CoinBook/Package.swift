@@ -14,9 +14,10 @@ let package = Package(
     dependencies: [
         .package(name: "Starscream", url: "https://github.com/daltoniam/Starscream", from: "3.1.1"),
         .package(name: "JJLISO8601DateFormatter", url: "https://github.com/michaeleisel/JJLISO8601DateFormatter", from: "0.1.2"),
+        .package(name: "ZippyJSON", url: "https://github.com/michaeleisel/ZippyJSON", from: "1.2.4"),
     ],
     targets: [
-        .target(name: "CoinBook", dependencies: ["Starscream", "JJLISO8601DateFormatter"]),
+        .target(name: "CoinBook", dependencies: ["Starscream", "JJLISO8601DateFormatter","ZippyJSON"]),
         .testTarget(name: "CoinBookUnitTests", dependencies: ["CoinBook"]),
         /// Collection of unit tests that can may fail unexpectedly.
         /// These tests depends on external I/O, therefore cannot be tested deterministic.
