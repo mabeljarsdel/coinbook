@@ -5,6 +5,9 @@
       location = "group:README.md">
    </FileRef>
    <FileRef
+      location = "group:LOG.md">
+   </FileRef>
+   <FileRef
       location = "group:CoinBook">
    </FileRef>
    <FileRef
